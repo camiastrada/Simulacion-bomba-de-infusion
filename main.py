@@ -1,27 +1,28 @@
-from pypdevs.simulator import Simulator
-from sistema import SistemaInfusion
+from sistema import SistemaInfusionAcoplado
+from xdevs.sim import Coordinator
 
 if __name__ == "__main__":
     # 1. Crear el sistema acoplado (la maqueta completa)
-    sistema = SistemaInfusion("Suite_Simulacion_Medica")
+    sistema = SistemaInfusionAcoplado("Suite_Simulacion_Medica")
     
-    # 2. Pasar el sistema al motor de simulación de PythonPDEVS
-    simulador = Simulator(sistema)
-    
-    # 3. Configurar parámetros de ejecución
-    # Simularemos 3600 segundos virtuales (1 hora de tiempo simulado)
-    simulador.setTerminationTime(3600.0)
-    
-  
-    # para ver únicamente los prints limpios que pusimos en los componentes
-    simulador.setVerbose(None)
+    # 2. Pasar el sistema al motor de simulación 
+    simulador = Coordinator(sistema)
+
+    # 3. Inicializan los componentes
+    simulador.initialize()
+
+    # 4. Configurar parámetros de ejecución
+    TIEMPO_SIMULACION = 3600.0
+
+    # 5. Arrancar el motor de simulación
     
     print("=========================================")
     print(" INICIANDO SIMULACIÓN DE EVENTOS DISCRETOS")
     print("=========================================")
     
-    # 4. Arrancar el motor de simulación
-    simulador.simulate()
+
+    simulador.sim(3600.0)
+
     
     print("=========================================")
     print(" SIMULACIÓN FINALIZADA CON ÉXITO")

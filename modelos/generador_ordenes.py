@@ -1,11 +1,12 @@
 import random
-from pypdevs.DEVS import AtomicDEVS
+from xdevs.models import Atomic, Coupled, Port, INFINITY
+#from pypdevs.DEVS import AtomicDEVS
 from lib import CAUDAL_MAX, CAUDAL_MIN
 
 T_MIN_ORDEN = 10.0
 T_MAX_ORDEN = 600.0
 
-class GeneradorOrdenes(AtomicDEVS):
+class GeneradorOrdenes(Atomic):
   
     def __init__(self, nombre):
         super().__init__(nombre)

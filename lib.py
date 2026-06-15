@@ -6,6 +6,7 @@ from typing import NewType
 # ─────────────────────────────────────────────────────────────
 CAUDAL_MAX = 200.0  # ml/h
 CAUDAL_MIN = 0.0    # ml/h
+DELAY_ACTUADOR = 0.5  # segundos
 
 
 # ─────────────────────────────────────────────────────────────
@@ -33,6 +34,10 @@ class EstadoBomba(Enum):
     ALARMA_CRITICA = "alarmaCritica"
     SIN_ERROR = "sinError"
     APAGADO = "apagado"
+
+#
+class AccionBomba(Enum):
+    DETENER_BOMBA = "detenerBomba"
 
 
 # ─────────────────────────────────────────────────────────────
