@@ -26,3 +26,7 @@ if __name__ == "__main__":
     print("=========================================")
     print(" SIMULACIÓN FINALIZADA CON ÉXITO")
     print("=========================================")
+
+
+
+# utilizar **Recomendado:** `from pypdevs.minimal import Simulator`
