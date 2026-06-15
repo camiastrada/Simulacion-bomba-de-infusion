@@ -1,32 +1,28 @@
-from xdevs.models import AtomicDEVS
+from xdevs.models import Atomic, Port, INFINITY
+import random
 
-class SensorFlujo(AtomicDEVS):
-    def __init__(self, name):
+class SensorFlujo(Atomic):
+    def __init__(self, name="sensor_flujo"):
         super().__init__(name)
-        
-        
+        self.i_caudal_actual = Port(float, "caudalActual")
+        self.o_sensor_flujo = Port(float, "sensorFlujo")
+        self.add_in_port(self.i_caudal_actual)
+        self.add_out_port(self.o_sensor_flujo)
         self.PERIODO = 1.0
-        
-        
-        self.addInPort("caudalActual")
-        self.addOutPort("sensorFlujo")
-        
-        
         self.caudal = 0.0
-        self.holdIn("muestreo", self.PERIODO)
 
-    def extTransition(self, inputs):
-    
-        if "caudalActual" in inputs:
-            self.caudal = inputs["caudalActual"][0]
-            tiempo_restante = self.sigma - self.elapsed
-            self.holdIn("muestreo", tiempo_restante)
-        return self.state
+    def initialize(self):
+        self.hold_in("muestreo", self.PERIODO)
 
-    def intTransition(self):
-        
-        self.holdIn("muestreo", self.PERIODO)
-        return self.state
+    def exit(self):
+        pass
 
-    def outputFnc(self):
-        return {self.getPort("sensorFlujo"): [self.caudal]}
+    def lambdaf(self):
+        self.o_sensor_flujo.add(self.caudal)
+
+    def deltint(self):
+        self.hold_in("muestreo", self.PERIODO)
+
+    def deltext(self, e):
+        if not self.i_caudal_actual.empty():
+            self.caudal = self.i_caudal_actual.get()

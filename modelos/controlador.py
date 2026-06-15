@@ -14,7 +14,7 @@ class Controlador(Atomic):
         self.i_fin_bolsa = Port(bool, "finBolsa")
         self.i_confirmacion = Port(bool, "confirmacionEnfermero")
         self.o_mensaje_actuador = Port(object, "mensajeActuador")
-        self.o_alarma = Port(str, "alarma")
+        self.o_alarma = Port(EstadoBomba, "alarma")
         self.add_in_port(self.i_orden_medica)
         self.add_in_port(self.i_caudal_real)
         self.add_in_port(self.i_fin_bolsa)  
@@ -97,7 +97,8 @@ class Controlador(Atomic):
         self.hold_in("activo", self._sig())
 
     def deltext(self, e):  
-        #Entrada de orden médica
+        
+       
         if not self.i_orden_medica.empty():
             x = self.i_orden_medica.get()
             if x == self.caudal_indicado:
