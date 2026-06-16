@@ -67,6 +67,9 @@ class Controlador(Atomic):
     def deltint(self):
         #Salida porque expira sigma_orden
         if self.sigma_orden < self.sigma_bomba:
+#######
+            if(self.estado_bomba == EstadoBomba.ALARMA_CRITICA):
+                self.sigma_orden = INFINITY
             if(self.caudal_indicado == 0.0):
                 #Ingresa caudal cero, y hay que detener la bomba
                 self.sigma_orden = INFINITY
@@ -98,7 +101,8 @@ class Controlador(Atomic):
             #Pasa a estado de alarma crítica
             elif(self.estado_bomba) == EstadoBomba.ALARMA_MEDIA:
                 self.caudal_indicado = 0.0
-                self.sigma_orden = INFINITY
+                #self.sigma_orden = INFINITY
+                self.sigma_orden = 0
                 self.estado_bomba = EstadoBomba.ALARMA_CRITICA
                 self.sigma_bomba = INFINITY
 

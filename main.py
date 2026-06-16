@@ -7,16 +7,15 @@ from monitores.monitor_controlador import MonitorControlador
 from lib import AccionBomba
 from simulacion import Simulacion
 
+
 if __name__ == "__main__":
 
-    def f():
-        return 120.0
-    def g():
-        return 1000.0
     simular = Simulacion("SimulacionBombaInfusion")
-    simular.iniciar_simulacion(3600.0,f,g)
+    simular.iniciar_simulacion(3600.0,None,None)
     simular.mostrar_metricas()
-
+    simular.graficar_caudal("Escenario1_Normal") 
+    simular.graficar_estado_bomba("Escenario1_Normal")
+    simular.contar_detenciones_preventivas()
     #Escenario 1: Funcionamiento normal sin fallas
 
 
@@ -33,4 +32,14 @@ if __name__ == "__main__":
     simular.iniciar_simulacion(3600.0,f,g)
     simular.mostrar_metricas()
 
+
+    #Escenario 3 se genera orden 0.0
+    def f():
+        return 0.0
+    simular = Simulacion("SimulacionBombaInfusion")
+    simular.iniciar_simulacion(3600.0,f,None)
+    simular.mostrar_metricas()  
   
+    simular.graficar_caudal("Escenario1_Normal") 
+
+   

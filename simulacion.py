@@ -4,15 +4,16 @@ from monitores.monitor_caudal import MonitorCaudal
 from monitores.monitor_alarmas import MonitorAlarmas
 from monitores.monitor_respuesta import MonitorRespuesta
 from monitores.monitor_controlador import MonitorControlador
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 from lib import AccionBomba
-
+from lib import EstadoBomba
 
 
 
 class Simulacion():
 
     def __init__(self, name):
-
         self.sistema = SistemaInfusionAcoplado("Suite_Simulacion_Medica")
         self.monitor_caudal = MonitorCaudal()    
         self.monitor_alarmas = MonitorAlarmas()
@@ -45,20 +46,20 @@ class Simulacion():
             # ── Monitor caudal ────────────────────────────────────────
             if not self.sistema.generador.o_orden_medica.empty():
                 v = self.sistema.generador.o_orden_medica.get()
-                print(f"EVENTO: t={t:.2f}  ordenMedica  valor={v}")
+                #print(f"EVENTO: t={t:.2f}  ordenMedica  valor={v}")
                 self.monitor_caudal.observar_orden(t, v)
                 self.monitor_respuesta.observar_orden(t, v)
 
             if not self.sistema.sensor.o_sensor_flujo.empty():
                 v = self.sistema.sensor.o_sensor_flujo.get()
-                print(f"EVENTO: t={t:.2f}  sensorFlujo  valor={v:.2f}")
+                #print(f"EVENTO: t={t:.2f}  sensorFlujo  valor={v:.2f}")
                 self.monitor_caudal.observar_flujo(t, v)
                 self.monitor_respuesta.observar_flujo(t, v)
 
             # ── Monitor alarmas ───────────────────────────────────────
             if not self.sistema.alarma.o_notificacion.empty():
                 v = self.sistema.alarma.o_notificacion.get()
-                print(f"EVENTO: t={t:.2f}  alarma       valor={v}")
+                #print(f"EVENTO: t={t:.2f}  alarma       valor={v}")
                 self.monitor_alarmas.observar_alarma(t, v)
 
             # ── Monitor controlador ───────────────────────────────────
@@ -138,8 +139,154 @@ class Simulacion():
             for i, (tiempo, caudal) in enumerate(metricas_controlador['ordenApagar']):
                 print(f"    {i+1}. Tiempo: {tiempo:.2f}s - Caudal ajustado: {caudal}")
 
+
+        
+
         print("-----------------------------\n")
 
+    def graficar_caudal(self, titulo="Simulación"):
+
+        metricas = self.monitor_caudal.obtener_metricas()
+        indicado = sorted(metricas['caudal_indicado'], key=lambda p: p[0])
+        real      = sorted(metricas['caudal_real'],      key=lambda p: p[0])
+
+        if not indicado and not real:
+            print("Sin datos de caudal para graficar.")
+            return
+
+        # Caudal indicado como escalón
+        t_ind = [p[0] for p in indicado]
+        v_ind = [p[1] for p in indicado]
+
+        # Caudal real como línea continua
+        t_real = [p[0] for p in real]
+        v_real = [p[1] for p in real]
+
+        fig, ax = plt.subplots(figsize=(12, 5))
+
+        ax.step(t_ind, v_ind, where='post',color='#2563eb', linewidth=2, label='Caudal indicado')
+
+        ax.plot(t_real, v_real, color='#dc2626', linewidth=1, linestyle='--', alpha=0.8, label='Caudal real (sensor)')
+
+        # Alarmas como líneas verticales
+        metricas_alarmas = self.monitor_alarmas.obtener_metricas()
+        colores_alarma = {
+            'alarmaBaja':    ('#f59e0b', 'Alarma baja'),
+            'alarmaMedia':   ('#f97316', 'Alarma media'),
+            'alarmaCritica': ('#dc2626', 'Alarma crítica'),
+        }
+        alarmas_graficadas = set()
+        for t_a, tipo in metricas_alarmas.get('alarmas', []):
+            color, etiqueta = colores_alarma.get(tipo, ('#999', tipo))
+            label = etiqueta if tipo not in alarmas_graficadas else None
+            ax.axvline(x=t_a, color=color, linewidth=1.2,
+                    linestyle=':', alpha=0.7, label=label)
+            alarmas_graficadas.add(tipo)
+
+        ax.set_xlabel('Tiempo (s)', fontsize=11)
+        ax.set_ylabel('Caudal (ml/h)', fontsize=11)
+        ax.set_title(f'Caudal indicado vs. caudal real — {titulo}', fontsize=13)
+        ax.legend(loc='upper right', fontsize=9)
+        ax.grid(True, alpha=0.3)
+        ax.set_xlim(left=0)
+        ax.set_ylim(bottom=0)
+
+        plt.tight_layout()
+        plt.savefig(f"grafico_caudal_{titulo.replace(' ','_')}.png", dpi=150)
+        plt.show()
+
+    def graficar_estado_bomba(self, titulo="Simulación"):
+        
+
+        metricas = self.monitor_controlador.obtener_metricas()
+
+        # Reunir todos los eventos con su estado resultante
+        eventos = []
+        for t, _ in metricas['ajustarCaudal']:
+            eventos.append((t, 'SIN_ERROR'))
+        for t, _ in metricas['ordenApagar']:
+            eventos.append((t, 'APAGADO'))
+        for t, tipo in metricas['alarmas']:
+            if tipo == EstadoBomba.ALARMA_MEDIA:
+                eventos.append((t, 'ALARMA_MEDIA'))
+            elif tipo == EstadoBomba.ALARMA_CRITICA:
+                eventos.append((t, 'APAGADO'))        # crítica → se apaga
+            elif tipo == EstadoBomba.ALARMA_BAJA:
+                eventos.append((t, 'FIN_BOLSA'))
+
+        if not eventos:
+            print("Sin eventos de estado para graficar.")
+            return
+
+        eventos.sort(key=lambda e: e[0])
+
+        # Mapa de estados a valores numéricos (eje Y)
+        ESTADOS = {
+            'SIN_ERROR':    4,
+            'ALARMA_MEDIA': 3,
+            'FIN_BOLSA':    2,
+            'APAGADO':      1,
+        }
+        COLORES = {
+            'SIN_ERROR':    '#22c55e',
+            'ALARMA_MEDIA': '#f97316',
+            'FIN_BOLSA':    '#f59e0b',
+            'APAGADO':      '#dc2626',
+        }
+        ETIQUETAS = {
+            'SIN_ERROR':    'Sin error',
+            'ALARMA_MEDIA': 'Alarma media',
+            'FIN_BOLSA':    'Fin de bolsa',
+            'APAGADO':      'Apagado / Alarma crítica',
+        }
+
+        fig, ax = plt.subplots(figsize=(12, 4))
+
+        t_fin = self.tiempoSimulacion
+
+        for i, (t, estado) in enumerate(eventos):
+            t_siguiente = eventos[i + 1][0] if i + 1 < len(eventos) else t_fin
+            y = ESTADOS[estado]
+            ax.fill_between([t, t_siguiente], [y - 0.4, y - 0.4], [y + 0.4, y + 0.4],
+                            color=COLORES[estado], alpha=0.35)
+            ax.hlines(y, t, t_siguiente,
+                    colors=COLORES[estado], linewidth=3)
+
+        # Leyenda manual
+        from matplotlib.lines import Line2D
+        leyenda = [
+            Line2D([0], [0], color=COLORES[e], linewidth=3, label=ETIQUETAS[e])
+            for e in ESTADOS
+        ]
+        ax.legend(handles=leyenda, loc='upper right', fontsize=9)
+
+        ax.set_yticks(list(ESTADOS.values()))
+        ax.set_yticklabels([ETIQUETAS[e] for e in ESTADOS], fontsize=10)
+        ax.set_xlabel('Tiempo (s)', fontsize=11)
+        ax.set_title(f'Estado de la bomba — {titulo}', fontsize=13)
+        ax.set_xlim(0, t_fin)
+        ax.set_ylim(0.4, 4.6)
+        ax.grid(axis='x', alpha=0.3)
+
+        plt.tight_layout()
+        plt.savefig(f"grafico_estado_{titulo.replace(' ', '_')}.png", dpi=150)
+        plt.show()
+
+    def contar_detenciones_preventivas(self):
+        metricas = self.monitor_controlador.obtener_metricas()
+        
+        # Tiempos en que hubo alarma (baja o crítica)
+        t_alarmas = {t for t, tipo in metricas['alarmas'] 
+                    #if tipo in {EstadoBomba.ALARMA_BAJA, EstadoBomba.ALARMA_CRITICA}}
+                    if tipo in {EstadoBomba.ALARMA_CRITICA}}
+        
+        count = 0
+        for t_apagado, _ in metricas['ordenApagar']:
+            # Si se agrega lo de alarmaBaja, deberia comprobar si 65 segundos anteriores hubo una alarma, es preventiva
+            if any(t_apagado - 10 <= t_a <= t_apagado for t_a in t_alarmas):
+                count += 1
+        print(f"Total de detenciones preventivas detectadas: {count}")
+        return count
 
 
   
