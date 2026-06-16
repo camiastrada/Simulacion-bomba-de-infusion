@@ -1,6 +1,4 @@
-import random
 from xdevs.models import Atomic, Coupled, Port, INFINITY
-from xdevs.sim import Coordinator
 from lib import EstadoBomba, error_caudal, AccionBomba
 
 
@@ -37,24 +35,34 @@ class Controlador(Atomic):
     
     def lambdaf(self):
         #Salida porque expira sigma_orden
-        if self.sigma_orden <= self.sigma_bomba:
+        if self.sigma_orden < self.sigma_bomba:
             if(self.caudal_indicado == 0.0):
                 #Ingresa caudal cero, y hay que detener la bomba
                 self.o_mensaje_actuador.add(AccionBomba.DETENER_BOMBA)
+                ###################PRINT DEBUG 
+                print(f"DEBUG: Controlador orden de caudal 0.0, deteniendo bomba")
             else:
                 #Ingresa caudal distinto a cero, y hay que ajustar caudal
                 self.o_mensaje_actuador.add(self.caudal_indicado)
+                ###################PRINT DEBUG 
+                print(f"DEBUG: Controlador orden de caudal {self.caudal_indicado}, ajustando bomba")
         #Salida porque expira sigma_bomba
         else:
             #Hay error en el caudal, y debo lanzar una alarma media
             if(self.estado_bomba == EstadoBomba.ERROR_CAUDAL):
                 self.o_alarma.add(EstadoBomba.ALARMA_MEDIA)
+                ###################PRINT DEBUG 
+                print(f"DEBUG: Controlador detecta error de caudal, lanzando alarma media")
             #Hay fin de bolsa, y debo lanzar una alarma baja
             elif(self.estado_bomba) == EstadoBomba.ALARMA_BAJA:
                 self.o_alarma.add(EstadoBomba.ALARMA_BAJA)
+                ###################PRINT DEBUG 
+                print(f"DEBUG: Controlador detecta fin de bolsa, lanzando alarma baja")
             #Ya se lanzó alarma media, hay repetición de error, y debo lanzar una alarma crítica
             elif(self.estado_bomba) == EstadoBomba.ALARMA_MEDIA:
                 self.o_alarma.add(EstadoBomba.ALARMA_CRITICA)
+                ###################PRINT DEBUG 
+                print(f"DEBUG: Controlador detecta repetición de error, lanzando alarma crítica")
     
     def deltint(self):
         #Salida porque expira sigma_orden

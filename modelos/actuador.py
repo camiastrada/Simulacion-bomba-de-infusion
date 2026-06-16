@@ -19,6 +19,7 @@ class Actuador(Atomic):
 
     def lambdaf(self):
         self.o_caudal_real.add(self.caudal_pendiente)
+        print(f"DEBUG: Llega a actuador")
         
     def deltint(self):
         self.hold_in("pasivo", INFINITY)
