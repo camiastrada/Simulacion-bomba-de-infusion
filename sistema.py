@@ -35,7 +35,7 @@ class SistemaInfusionAcoplado(Coupled):
         self.add_coupling(self.controlador.o_mensaje_actuador, self.actuador.i_mensaje_actuador)
         
         # El actuador produce un caudal real, que es medido por el sensor
-        # ¡ESTA ES LA CONEXIÓN CLAVE QUE FALTABA!
+        # En la simulación, el sensor recibe directamente la medición del actuador para simplificar el modelo
         self.add_coupling(self.actuador.o_caudal_real, self.sensor.i_caudal_actual)
         
         # El sensor envía su medición de vuelta al controlador, cerrando el ciclo

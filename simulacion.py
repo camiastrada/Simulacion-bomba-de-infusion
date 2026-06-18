@@ -24,12 +24,16 @@ class Simulacion():
    
 
     def iniciar_simulacion(self, tiempoSimulacion=3600.0, funcionCaudal=None, funcionTiempo=None):
-        self.simulador.initialize()
+        
         self.tiempoSimulacion = tiempoSimulacion
 
         #Configuraciones
         if funcionCaudal!=None: self.sistema.generador.setFuncionCaudal(funcionCaudal)
         if funcionTiempo!=None: self.sistema.generador.setFuncionTiempo(funcionTiempo)
+
+
+        self.simulador.initialize()
+
 
         print("=========================================")
         print(" INICIANDO SIMULACIÓN DE EVENTOS DISCRETOS")
@@ -46,26 +50,22 @@ class Simulacion():
             # ── Monitor caudal ────────────────────────────────────────
             if not self.sistema.generador.o_orden_medica.empty():
                 v = self.sistema.generador.o_orden_medica.get()
-                #print(f"EVENTO: t={t:.2f}  ordenMedica  valor={v}")
                 self.monitor_caudal.observar_orden(t, v)
                 self.monitor_respuesta.observar_orden(t, v)
 
             if not self.sistema.sensor.o_sensor_flujo.empty():
                 v = self.sistema.sensor.o_sensor_flujo.get()
-                #print(f"EVENTO: t={t:.2f}  sensorFlujo  valor={v:.2f}")
                 self.monitor_caudal.observar_flujo(t, v)
                 self.monitor_respuesta.observar_flujo(t, v)
 
             # ── Monitor alarmas ───────────────────────────────────────
             if not self.sistema.alarma.o_notificacion.empty():
                 v = self.sistema.alarma.o_notificacion.get()
-                #print(f"EVENTO: t={t:.2f}  alarma       valor={v}")
                 self.monitor_alarmas.observar_alarma(t, v)
 
             # ── Monitor controlador ───────────────────────────────────
             if not self.sistema.controlador.o_mensaje_actuador.empty():
                 v = self.sistema.controlador.o_mensaje_actuador.get()
-                print(f"EVENTO: t={t:.2f}  mensajeActuador  valor={v}")
                 if(v==AccionBomba.DETENER_BOMBA):
                     self.monitor_controlador.observar_orden_apagar(t, 0.0)
                 else:
@@ -73,7 +73,6 @@ class Simulacion():
             
             if not self.sistema.controlador.o_alarma.empty():    
                 v = self.sistema.controlador.o_alarma.get()
-                print(f"EVENTO: t={t:.2f}  alarmaControlador  valor={v}")
                 self.monitor_controlador.observar_alarma(t, v)
 
             self.simulador.deltfcn()
@@ -87,14 +86,13 @@ class Simulacion():
 
     def mostrar_metricas(self):
   
-        # 6. Obtener y mostrar las métricas de los monitores
+        # Obtener y mostrar las métricas de los monitores
         print("\n--- MÉTRICAS RECOLECTADAS ---")
 
         print("\n[ Monitor de Caudal ]")
         metricas_caudal = self.monitor_caudal.obtener_metricas()
         print(f"  Caudales indicados registrados: {len(metricas_caudal['caudal_indicado'])}")
         print(f"  Caudales reales registrados: {len(metricas_caudal['caudal_real'])}")
-        #print(metricas_caudal) # Descomentar para ver datos crudos
 
         print("\n[ Monitor de Alarmas ]")
         metricas_alarmas = self.monitor_alarmas.obtener_metricas()
@@ -114,7 +112,6 @@ class Simulacion():
             tiempos = metricas_respuesta['tiempos_respuesta']
             avg_tiempo = sum(tiempos) / len(tiempos)
             print(f"  Tiempo de respuesta promedio: {avg_tiempo:.4f}s")
-
         
         print("\n[ Monitor del controlador ]")
         metricas_controlador = self.monitor_controlador.obtener_metricas()
@@ -139,8 +136,6 @@ class Simulacion():
             for i, (tiempo, caudal) in enumerate(metricas_controlador['ordenApagar']):
                 print(f"    {i+1}. Tiempo: {tiempo:.2f}s - Caudal ajustado: {caudal}")
 
-
-        
 
         print("-----------------------------\n")
 

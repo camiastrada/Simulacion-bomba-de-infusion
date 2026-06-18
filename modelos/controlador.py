@@ -1,4 +1,4 @@
-from xdevs.models import Atomic, Coupled, Port, INFINITY
+from xdevs.models import Atomic, Port, INFINITY
 from lib import EstadoBomba, error_caudal, AccionBomba
 
 
@@ -13,13 +13,16 @@ class Controlador(Atomic):
         self.i_confirmacion = Port(bool, "confirmacionEnfermero")
         self.o_mensaje_actuador = Port(object, "mensajeActuador")
         self.o_alarma = Port(EstadoBomba, "alarma")
+        #Puerto de entrada
         self.add_in_port(self.i_orden_medica)
         self.add_in_port(self.i_caudal_real)
         self.add_in_port(self.i_fin_bolsa)  
         self.add_in_port(self.i_confirmacion)
+        #Puerto de salida
         self.add_out_port(self.o_mensaje_actuador)
         self.add_out_port(self.o_alarma)
     
+    #Estado del controlador(caudal_indicado, sigma_orden, ultima_medicion, estado_bomba, sigma_bomba)
     def initialize(self):    
         self.caudal_indicado = 0.0
         self.sigma_orden = INFINITY
@@ -39,36 +42,26 @@ class Controlador(Atomic):
             if(self.caudal_indicado == 0.0):
                 #Ingresa caudal cero, y hay que detener la bomba
                 self.o_mensaje_actuador.add(AccionBomba.DETENER_BOMBA)
-                ###################PRINT DEBUG 
-                print(f"DEBUG: Controlador orden de caudal 0.0, deteniendo bomba")
             else:
                 #Ingresa caudal distinto a cero, y hay que ajustar caudal
                 self.o_mensaje_actuador.add(self.caudal_indicado)
-                ###################PRINT DEBUG 
-                print(f"DEBUG: Controlador orden de caudal {self.caudal_indicado}, ajustando bomba")
         #Salida porque expira sigma_bomba
         else:
             #Hay error en el caudal, y debo lanzar una alarma media
             if(self.estado_bomba == EstadoBomba.ERROR_CAUDAL):
                 self.o_alarma.add(EstadoBomba.ALARMA_MEDIA)
-                ###################PRINT DEBUG 
-                print(f"DEBUG: Controlador detecta error de caudal, lanzando alarma media")
             #Hay fin de bolsa, y debo lanzar una alarma baja
             elif(self.estado_bomba) == EstadoBomba.ALARMA_BAJA:
                 self.o_alarma.add(EstadoBomba.ALARMA_BAJA)
-                ###################PRINT DEBUG 
-                print(f"DEBUG: Controlador detecta fin de bolsa, lanzando alarma baja")
             #Ya se lanzó alarma media, hay repetición de error, y debo lanzar una alarma crítica
             elif(self.estado_bomba) == EstadoBomba.ALARMA_MEDIA:
                 self.o_alarma.add(EstadoBomba.ALARMA_CRITICA)
-                ###################PRINT DEBUG 
-                print(f"DEBUG: Controlador detecta repetición de error, lanzando alarma crítica")
     
     def deltint(self):
         #Salida porque expira sigma_orden
         if self.sigma_orden < self.sigma_bomba:
-#######
             if(self.estado_bomba == EstadoBomba.ALARMA_CRITICA):
+                #Se apago la bomba por una alarma critica, el estado permanece en alarma critica por tiempo indefinido
                 self.sigma_orden = INFINITY
             if(self.caudal_indicado == 0.0):
                 #Ingresa caudal cero, y hay que detener la bomba
@@ -98,10 +91,9 @@ class Controlador(Atomic):
                 self.sigma_orden = INFINITY
                 self.estado_bomba = EstadoBomba.SIN_ERROR
                 self.sigma_bomba = INFINITY
-            #Pasa a estado de alarma crítica
+            #Pasa a estado de alarma crítica, y en 0 seg hay que enviar el mensaje de apagar bomba al actuador
             elif(self.estado_bomba) == EstadoBomba.ALARMA_MEDIA:
                 self.caudal_indicado = 0.0
-                #self.sigma_orden = INFINITY
                 self.sigma_orden = 0
                 self.estado_bomba = EstadoBomba.ALARMA_CRITICA
                 self.sigma_bomba = INFINITY
@@ -129,7 +121,6 @@ class Controlador(Atomic):
                 #Si el caudal no causa error, y antes tenia error, pasa a estas sin error
                 #Si el caudal no causa error, y antes no tenia error, se mantiene sin error
                 if (self.estado_bomba in {EstadoBomba.SIN_ERROR, EstadoBomba.ALARMA_MEDIA, EstadoBomba.ALARMA_CRITICA, EstadoBomba.ERROR_CAUDAL} and (not error_caudal(x, self.ultima_medicion))):
-#aca ver 
                     self.estado_bomba = EstadoBomba.SIN_ERROR 
                     self.sigma_bomba = INFINITY
                 #la nueva indicacion cuasa error, y antes no tenia error, pasa a error de caudal
