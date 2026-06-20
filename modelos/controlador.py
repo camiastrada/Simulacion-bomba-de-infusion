@@ -1,5 +1,5 @@
 from xdevs.models import Atomic, Port, INFINITY
-from lib import EstadoBomba, error_caudal, AccionBomba, CAUDAL_MAX, CAUDAL_MIN
+from lib import EstadoBomba, error_caudal, AccionBomba, CAUDAL_MAX, CAUDAL_MIN, verificar_rango_caudal
 import random
 
 
@@ -120,7 +120,7 @@ class Controlador(Atomic):
                 self.sigma_orden = 0.0
                 self.sigma_bomba -= e
             elif x > 0.0:
-                if (x > CAUDAL_MAX or x < CAUDAL_MIN):
+                if (not(verificar_rango_caudal(x))):
                     #Si el caudal indicado es mayor al máximo o menor al mínimo, se considera un error y se rechaza la orden
                     print("Orden médica de caudal fuera de rango, se rechaza la orden")
                     self.sigma_orden -= e
