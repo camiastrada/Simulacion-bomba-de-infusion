@@ -34,7 +34,7 @@ class Simulacion():
         #Configuraciones
         if funcionCaudal!=None: self.sistema.generador.setFuncionCaudal(funcionCaudal)
         if funcionTiempo!=None: self.sistema.generador.setFuncionTiempo(funcionTiempo)
-        if funcionPresicionCaudal!=None: self.monitor_respuesta.precision = funcionPresicionCaudal
+        if funcionPresicionCaudal!=None: self.sistema.sensor.setFuncionPrecision(funcionPresicionCaudal)
         if funcionTiempoConfirmacion!=None: self.sistema.confirmacion.setFuncionTiempo(funcionTiempoConfirmacion)
 
 

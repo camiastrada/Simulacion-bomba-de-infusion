@@ -73,6 +73,7 @@ class ModuloAlarmas(Atomic):
         #Ingresa una confirmación desde el enfermero        
         elif not self.i_confirmacion.empty():
             x = self.i_confirmacion.get()
+            print(f"Modulo de alarmas recibe confirmación del enfermero: {x}")
             if x and self.nivel_activo in ["critica", "repeticionCritica"]:
                 #Si el estado actual era critica o repeticionCritica, y se confirma, se reestablece el nivel a "ninguna"
                 self.nivel_activo = "ninguna"

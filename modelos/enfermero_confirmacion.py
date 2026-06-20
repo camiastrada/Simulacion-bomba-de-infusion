@@ -26,7 +26,8 @@ class EnfermeroConfirmacion(Atomic):
     def exit(self):
         pass
 
-    def lambdaf(self):
+    def lambdaf(self): 
+        print("Enfermero recibe alerta de alarma, y confirma la alarma")
         self.o_confirmacion.add(True)
 
     #Cambiar la funcion para eleccion de tiempo de respuesta del enfermero
@@ -38,8 +39,14 @@ class EnfermeroConfirmacion(Atomic):
         self.hold_in("inactiva", INFINITY)
 
     def deltext(self, e):
+        print("Enfermero recibe mensaje de alerta de alarma")
         if not self.i_alerta_alarma.empty():
-            x = self.i_alerta_alarma.get()
-            if x in {"alarmaCritica", "alarmaBaja"}:
-                self.alarmaActiva = True
-                self.hold_in("activa", self.tiempoProximaConfirmacion())
+            if self.i_alerta_alarma.get() in {"alarmaCritica", "alarmaBaja"}:
+                if not self.alarmaActiva:
+                    # Primera vez que recibe la alarma → iniciar countdown
+                    self.alarmaActiva = True
+                    self.hold_in("activa", self.tiempoProximaConfirmacion())
+                else:
+                    # Ya está contando → solo descontar tiempo transcurrido
+                    self.sigma -= e
+                    self.hold_in("activa", self.sigma)
