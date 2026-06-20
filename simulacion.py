@@ -2,8 +2,9 @@ from sistema import SistemaInfusionAcoplado
 from xdevs.sim import Coordinator
 from monitores.monitor_caudal import MonitorCaudal
 from monitores.monitor_alarmas import MonitorAlarmas
-from monitores.monitor_respuesta import MonitorRespuesta
+from monitores.monitor_actualizacion_caudal import MonitorRespuesta
 from monitores.monitor_controlador import MonitorControlador
+from monitores.monitor_bolsa import MonitorBolsa
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from lib import AccionBomba
@@ -19,6 +20,7 @@ class Simulacion():
         self.monitor_alarmas = MonitorAlarmas()
         self.monitor_respuesta = MonitorRespuesta()
         self.monitor_controlador = MonitorControlador()
+        self.monitor_bolsa = MonitorBolsa()
         self.tiempoSimulacion = 3600.0
         self.simulador = Coordinator(self.sistema)
    
@@ -68,12 +70,19 @@ class Simulacion():
                 v = self.sistema.controlador.o_mensaje_actuador.get()
                 if(v==AccionBomba.DETENER_BOMBA):
                     self.monitor_controlador.observar_orden_apagar(t, 0.0)
+                    self.monitor_bolsa.observar_accion_controlador(t, v)
                 else:
                     self.monitor_controlador.observar_ajustar_caudal(t, v)
             
             if not self.sistema.controlador.o_alarma.empty():    
                 v = self.sistema.controlador.o_alarma.get()
                 self.monitor_controlador.observar_alarma(t, v)
+                
+            # ── Monitor bolsa ───────────────────────────────────
+            if not self.sistema.bolsa.o_fin_bolsa.empty():    
+                v = self.sistema.bolsa.o_fin_bolsa.get()
+                self.monitor_bolsa.observar_alerta_fin_bolsa(t, v)
+            
 
             self.simulador.deltfcn()
             self.simulador.clear()
@@ -136,7 +145,9 @@ class Simulacion():
             for i, (tiempo, caudal) in enumerate(metricas_controlador['ordenApagar']):
                 print(f"    {i+1}. Tiempo: {tiempo:.2f}s - Caudal ajustado: {caudal}")
 
-
+        print("\n[ Monitor de la bolsa ]")
+        print (f"  Total de alertas de fin de bolsa: {self.monitor_bolsa.obtener_cantidad_de_datos()}")
+        print(f"  Tiempo de respuesta promedio desde alerta de fin de bolsa hasta acción del controlador: {self.monitor_bolsa.obtener_tiempo_respuesta_promedio():.4f}s")
         print("-----------------------------\n")
 
     def graficar_caudal(self, titulo="Simulación"):

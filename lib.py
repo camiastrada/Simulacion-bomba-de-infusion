@@ -7,6 +7,7 @@ from typing import NewType
 CAUDAL_MAX = 200.0  # ml/h
 CAUDAL_MIN = 0.0    # ml/h
 DELAY_ACTUADOR = 0.5  # segundos
+CAPACIDAD_BOMBA = 1000.0  # ml
 
 
 # ─────────────────────────────────────────────────────────────

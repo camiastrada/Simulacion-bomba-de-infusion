@@ -1,3 +1,5 @@
+#Monitor para medir el tiempo de respuesta del sistema desde que llega una orden al controlador 
+# hasta que el sensor refleja el cambio en el caudal
 class MonitorRespuesta:
     def __init__(self, precision=0.01):
         self.tiempos_respuesta = []
@@ -22,6 +24,14 @@ class MonitorRespuesta:
         return {
             "tiempos_respuesta": self.tiempos_respuesta
         }
+        
+    def obtener_cantidad_de_datos(self):
+        return len(self.tiempos_respuesta)
+    
+    def obtener_tiempo_respuesta_promedio(self):
+        if not self.tiempos_respuesta:
+            return 0
+        return sum(self.tiempos_respuesta) / len(self.tiempos_respuesta)
 
 
   

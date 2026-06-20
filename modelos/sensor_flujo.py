@@ -1,3 +1,4 @@
+import random 
 from xdevs.models import Atomic, Port
 
 # Sensor de flujo de la bomba de infusión
@@ -24,7 +25,15 @@ class SensorFlujo(Atomic):
         pass
 
     def lambdaf(self):
-        self.o_sensor_flujo.add(self.caudal)
+        
+        if self.caudal <= 0:
+            self.o_sensor_flujo.add(0.0)
+        else:
+            # Generar una variación aleatoria del caudal real para simular el ruido del sensor
+            # Variación de ±2% del valor real, en caso estandar no ocurren variaciones grandes
+            factor_variacion = 1 + random.uniform(-0.02, 0.02)  
+            caudal_con_ruido = self.caudal * factor_variacion
+            self.o_sensor_flujo.add(caudal_con_ruido)
 
     def deltint(self):
         self.hold_in("muestreo", self.PERIODO)
