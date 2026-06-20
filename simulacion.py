@@ -25,13 +25,15 @@ class Simulacion():
         self.simulador = Coordinator(self.sistema)
    
 
-    def iniciar_simulacion(self, tiempoSimulacion=3600.0, funcionCaudal=None, funcionTiempo=None):
+    def iniciar_simulacion(self, tiempoSimulacion=3600.0, funcionCaudal=None, funcionTiempo=None, funcionPresicionCaudal=None, funcionTiempoConfirmacion=None):
         
         self.tiempoSimulacion = tiempoSimulacion
 
         #Configuraciones
         if funcionCaudal!=None: self.sistema.generador.setFuncionCaudal(funcionCaudal)
         if funcionTiempo!=None: self.sistema.generador.setFuncionTiempo(funcionTiempo)
+        if funcionPresicionCaudal!=None: self.monitor_respuesta.precision = funcionPresicionCaudal
+        if funcionTiempoConfirmacion!=None: self.sistema.sensor.setFuncionTiempoConfirmacion(funcionTiempoConfirmacion)
 
 
         self.simulador.initialize()

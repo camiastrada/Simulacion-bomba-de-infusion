@@ -4,6 +4,7 @@ from modelos.controlador import Controlador
 from modelos.actuador import Actuador
 from modelos.modulo_alarmas import ModuloAlarmas
 from modelos.bolsa_infusion import BolsaDeInfusion
+from modelos.enfermero_confirmacion import EnfermeroConfirmacion
 from xdevs.models import Coupled
 
 class SistemaInfusionAcoplado(Coupled):
@@ -21,6 +22,7 @@ class SistemaInfusionAcoplado(Coupled):
         self.actuador = Actuador(name="actuador")
         self.alarma = ModuloAlarmas(name="alarma")
         self.bolsa = BolsaDeInfusion(name="bolsa")
+        self.confirmacion = EnfermeroConfirmacion(name="confirmacion")
 
         # 2. AÑADIR COMPONENTES AL SISTEMA ACOPLADO
         self.add_component(self.generador)
@@ -29,6 +31,7 @@ class SistemaInfusionAcoplado(Coupled):
         self.add_component(self.actuador)
         self.add_component(self.alarma)
         self.add_component(self.bolsa)
+        self.add_component(self.confirmacion)
         
         # 3. DEFINIR LAS CONEXIONES (COUPLINGS)
         # La orden del generador va al controlador
@@ -53,4 +56,8 @@ class SistemaInfusionAcoplado(Coupled):
         # El controlador puede enviar alarmas al módulo de alarmas
         self.add_coupling(self.controlador.o_alarma, self.alarma.i_alarma)
         
-        # FALTAN Conexiones  confirmacion del enfermero con bolsa y con controlador y alarmas
+       
+        self.add_coupling(self.alarma.o_notificacion, self.confirmacion.i_alerta_alarma)
+        self.add_coupling(self.confirmacion.o_confirmacion, self.controlador.i_confirmacion)
+
+        

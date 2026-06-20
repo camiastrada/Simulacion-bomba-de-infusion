@@ -11,7 +11,7 @@ from simulacion import Simulacion
 if __name__ == "__main__":
 
     simular = Simulacion("SimulacionBombaInfusion")
-    simular.iniciar_simulacion(3600.0,None,None)
+    simular.iniciar_simulacion(3600.0,None,None,None,None)
     simular.mostrar_metricas()
     simular.graficar_caudal("Escenario1_Normal") 
     simular.graficar_estado_bomba("Escenario1_Normal")
@@ -27,12 +27,12 @@ if __name__ == "__main__":
     # def f():
     #     return next(valores_f, 80.0)  # después sigue devolviendo 80
 
-    # valores_g = iter([1.0, 2.0, 30000.0])
-    # def g():
-    #     return next(valores_g, 3000)
-    # simular = Simulacion("SimulacionBombaInfusion")
-    # simular.iniciar_simulacion(36000.0,f,g)
-    # simular.mostrar_metricas()
+    valores_g = iter([1.0, 2.0, 30000.0])
+    def g():
+        return next(valores_g, 3000)
+    simular = Simulacion("SimulacionBombaInfusion")
+    simular.iniciar_simulacion(36000.0,f,g,None,None)
+    simular.mostrar_metricas()
 
 
     # #Escenario 3 se genera orden 0.0
