@@ -200,7 +200,6 @@ class Simulacion():
         ax.set_ylim(bottom=0)
 
         plt.tight_layout()
-        plt.savefig(f"grafico_caudal_{titulo.replace(' ','_')}.png", dpi=150)
         plt.show()
 
     def graficar_estado_bomba(self, titulo="Simulación"):
@@ -277,7 +276,6 @@ class Simulacion():
         ax.grid(axis='x', alpha=0.3)
 
         plt.tight_layout()
-        plt.savefig(f"grafico_estado_{titulo.replace(' ', '_')}.png", dpi=150)
         plt.show()
 
     def contar_detenciones_preventivas(self):
