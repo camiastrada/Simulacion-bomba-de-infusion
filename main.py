@@ -13,6 +13,7 @@ if __name__ == "__main__":
     simular = Simulacion("SimulacionBombaInfusion")
     simular.iniciar_simulacion(3600.0,None,None,None,None)
     simular.mostrar_metricas()
+    simular.graficar_timeline()
     simular.graficar_caudal("Escenario1_Normal") 
     simular.graficar_estado_bomba("Escenario1_Normal")
     simular.contar_detenciones_preventivas()

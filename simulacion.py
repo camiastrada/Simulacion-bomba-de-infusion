@@ -94,7 +94,98 @@ class Simulacion():
         print(" SIMULACIÓN FINALIZADA CON ÉXITO")
         print("=========================================")
         
+    def graficar_timeline(self, titulo="Simulación"):
+        fig, ax1 = plt.subplots(figsize=(14, 5))
 
+        FILAS = {
+            'fin_bolsa':      (7, '#D4537E', 'Fin bolsa'),
+            'ajuste_caudal':  (6, '#534AB7', 'Ajuste caudal'),
+            'orden_medica':   (5, '#378ADD', 'Orden médica'),
+            'sensor_flujo':   (4, '#1D9E75', 'Sensor flujo'),
+            'alarma_critica': (3, '#E24B4A', 'Alarma crítica'),
+            'alarma_media':   (2, '#EF9F27', 'Alarma media'),
+            'alarma_baja':    (1, '#639922', 'Alarma baja'),
+            'detener_bomba':  (0, '#A32D2D', 'Detener bomba'),
+        }
+
+        MAPA_ALARMA_STR = {
+            'alarmaBaja':    'alarma_baja',
+            'alarmaMedia':   'alarma_media',
+            'alarmaCritica': 'alarma_critica',
+        }
+
+        MAPA_ALARMA_ENUM = {
+            EstadoBomba.ALARMA_BAJA:    'alarma_baja',
+            EstadoBomba.ALARMA_MEDIA:   'alarma_media',
+            EstadoBomba.ALARMA_CRITICA: 'alarma_critica',
+        }
+
+        metricas_c  = self.monitor_caudal.obtener_metricas()
+        metricas_a  = self.monitor_alarmas.obtener_metricas()
+        metricas_ct = self.monitor_controlador.obtener_metricas()
+
+        eventos = {k: [] for k in FILAS}
+
+        for t, _ in metricas_c.get('caudal_indicado', []):
+            eventos['orden_medica'].append(t)
+        for t, _ in metricas_c.get('caudal_real', []):
+            eventos['sensor_flujo'].append(t)
+
+        # monitor_alarmas → strings
+        for t, tipo in metricas_a.get('alarmas', []):
+            clave = MAPA_ALARMA_STR.get(tipo)
+            if clave:
+                eventos[clave].append(t)
+
+        # monitor_controlador → EstadoBomba
+        for t, tipo in metricas_ct.get('alarmas', []):
+            clave = MAPA_ALARMA_ENUM.get(tipo)
+            if clave:
+                eventos[clave].append(t)
+
+        for t, _ in metricas_ct.get('ajustarCaudal', []):
+            eventos['ajuste_caudal'].append(t)
+        for t, _ in metricas_ct.get('ordenApagar', []):
+            eventos['detener_bomba'].append(t)
+
+        # ── Scatter por fila ─────────────────────────────────────────────────
+        for tipo, (y, color, label) in FILAS.items():
+            ts = eventos[tipo]
+            ax1.scatter(
+                ts if ts else [],
+                [y] * len(ts) if ts else [],
+                color=color, s=60, label=label, zorder=3, linewidths=0
+            )
+
+        # ── Caudal indicado como escalón (eje derecho) ───────────────────────
+        ax2 = ax1.twinx()
+        indicado = sorted(metricas_c.get('caudal_indicado', []), key=lambda p: p[0])
+        if indicado:
+            t_ind = [p[0] for p in indicado]
+            v_ind = [p[1] for p in indicado]
+            ax2.step(t_ind, v_ind, where='post', color='#378ADD',
+                    linewidth=1.2, linestyle='--', alpha=0.5, label='Caudal indicado')
+            ax2.set_ylabel('Caudal (ml/h)', color='#378ADD', fontsize=10)
+            ax2.tick_params(axis='y', labelcolor='#378ADD')
+            ax2.set_ylim(bottom=0)
+
+        # ── Ejes y etiquetas ─────────────────────────────────────────────────
+        y_vals   = [v for v, _, _ in FILAS.values()]
+        y_labels = [label for _, _, label in FILAS.values()]
+        ax1.set_yticks(y_vals)
+        ax1.set_yticklabels(y_labels, fontsize=9)
+        ax1.set_ylim(-0.6, 7.6)
+        ax1.set_xlabel('Tiempo (s)', fontsize=11)
+        ax1.set_title(f'Timeline de eventos — {titulo}', fontsize=13)
+        ax1.grid(axis='x', alpha=0.25)
+        ax1.set_xlim(left=0, right=self.tiempoSimulacion)
+
+        handles, labels = ax1.get_legend_handles_labels()
+        ax1.legend(handles, labels, loc='upper right',
+                fontsize=8, ncol=2, framealpha=0.7)
+
+        plt.tight_layout()
+        plt.show()   
     def mostrar_metricas(self):
   
         # Obtener y mostrar las métricas de los monitores
