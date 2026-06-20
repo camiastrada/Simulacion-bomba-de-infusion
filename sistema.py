@@ -56,8 +56,10 @@ class SistemaInfusionAcoplado(Coupled):
         # El controlador puede enviar alarmas al módulo de alarmas
         self.add_coupling(self.controlador.o_alarma, self.alarma.i_alarma)
         
-       
+        # El módulo de alarmas notifica al enfermero 
         self.add_coupling(self.alarma.o_notificacion, self.confirmacion.i_alerta_alarma)
+        # El enfermero confirma que atendió la alarma, al controlador y al modulo de alarmas
         self.add_coupling(self.confirmacion.o_confirmacion, self.controlador.i_confirmacion)
-
+        self.add_coupling(self.confirmacion.o_confirmacion, self.alarma.i_confirmacion)
+        self.add_coupling(self.confirmacion.o_confirmacion, self.bolsa.i_confirmacion)
         

@@ -1,5 +1,5 @@
 from xdevs.models import Atomic, Port, INFINITY
-
+from lib import EstadoBomba, error_caudal, AccionBomba
 
 #Módulo de alarmas de la bomba de infusión
 
@@ -12,7 +12,7 @@ class ModuloAlarmas(Atomic):
         self.TOLERANCIA = 30.0
         
         self.i_alarma = Port(str, "alarma")
-        self.i_confirmacion = Port(str, "confirmacionEnfermero")
+        self.i_confirmacion = Port(bool, "confirmacionEnfermero")
         self.o_notificacion = Port(str, "notificacion")
         #Puerto de entrada
         self.add_in_port(self.i_alarma)
@@ -60,19 +60,20 @@ class ModuloAlarmas(Atomic):
         #Según la alarma, se establece el nivel activo y se programa para sonar inmediatamente
         if not self.i_alarma.empty():
             x = self.i_alarma.get()
-            if x == "alarmaBaja":
+            if x is EstadoBomba.ALARMA_BAJA:
                 self.nivel_activo = "baja"
                 self.hold_in("baja", 0)
-            elif x == "alarmaMedia":
+            elif x is EstadoBomba.ALARMA_MEDIA:
                 self.nivel_activo = "media"
                 self.hold_in("media", 0)
-            elif x == "alarmaCritica":
+            elif x is EstadoBomba.ALARMA_CRITICA:
                 self.nivel_activo = "critica"
                 self.hold_in("critica", 0)
+                
         #Ingresa una confirmación desde el enfermero        
         elif not self.i_confirmacion.empty():
             x = self.i_confirmacion.get()
-            if x == "confirmado" and self.nivel_activo in ["critica", "repeticionCritica"]:
+            if x and self.nivel_activo in ["critica", "repeticionCritica"]:
                 #Si el estado actual era critica o repeticionCritica, y se confirma, se reestablece el nivel a "ninguna"
                 self.nivel_activo = "ninguna"
                 self.hold_in("ninguna", INFINITY)

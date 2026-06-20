@@ -157,7 +157,7 @@ class Controlador(Atomic):
                 self.sigma_bomba -= e
 
         #Entrada de fin de bolsa
-        elif not self.i_fin_bolsa.empty():
+        if not self.i_fin_bolsa.empty():
             fin_bolsa = self.i_fin_bolsa.get()
             if fin_bolsa:
                 #Si hay fin de bolsa, hay que lanzar alarma baja

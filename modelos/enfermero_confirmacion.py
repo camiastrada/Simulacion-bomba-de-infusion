@@ -40,6 +40,6 @@ class EnfermeroConfirmacion(Atomic):
     def deltext(self, e):
         if not self.i_alerta_alarma.empty():
             x = self.i_alerta_alarma.get()
-            if(x=="alarmaCritica"):
+            if x in {"alarmaCritica", "alarmaBaja"}:
                 self.alarmaActiva = True
                 self.hold_in("activa", self.tiempoProximaConfirmacion())

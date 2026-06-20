@@ -1,3 +1,4 @@
+from monitores.monitor_confirmacion import MonitorConfirmacion
 from sistema import SistemaInfusionAcoplado
 from xdevs.sim import Coordinator
 from monitores.monitor_caudal import MonitorCaudal
@@ -21,6 +22,7 @@ class Simulacion():
         self.monitor_respuesta = MonitorRespuesta()
         self.monitor_controlador = MonitorControlador()
         self.monitor_bolsa = MonitorBolsa()
+        self.monitor_confirmacion = MonitorConfirmacion()
         self.tiempoSimulacion = 3600.0
         self.simulador = Coordinator(self.sistema)
    
@@ -33,7 +35,7 @@ class Simulacion():
         if funcionCaudal!=None: self.sistema.generador.setFuncionCaudal(funcionCaudal)
         if funcionTiempo!=None: self.sistema.generador.setFuncionTiempo(funcionTiempo)
         if funcionPresicionCaudal!=None: self.monitor_respuesta.precision = funcionPresicionCaudal
-        if funcionTiempoConfirmacion!=None: self.sistema.sensor.setFuncionTiempoConfirmacion(funcionTiempoConfirmacion)
+        if funcionTiempoConfirmacion!=None: self.sistema.confirmacion.setFuncionTiempo(funcionTiempoConfirmacion)
 
 
         self.simulador.initialize()
@@ -48,6 +50,7 @@ class Simulacion():
             if self.simulador.time_next >= self.tiempoSimulacion:
                 break
 
+    
             self.simulador.lambdaf()
             t = self.simulador.time_next
 
@@ -85,7 +88,13 @@ class Simulacion():
                 v = self.sistema.bolsa.o_fin_bolsa.get()
                 self.monitor_bolsa.observar_alerta_fin_bolsa(t, v)
             
-
+            # ── Monitor confirmacion ──────────────────────────────────────
+            
+            if not self.sistema.confirmacion.o_confirmacion.empty():
+                v = self.sistema.confirmacion.o_confirmacion.get()
+                self.monitor_confirmacion.observar_confirmacion(t, v)
+                
+                
             self.simulador.deltfcn()
             self.simulador.clear()
             self.simulador.clock.time = self.simulador.time_next
@@ -98,14 +107,15 @@ class Simulacion():
         fig, ax1 = plt.subplots(figsize=(14, 5))
 
         FILAS = {
-            'fin_bolsa':      (7, '#D4537E', 'Fin bolsa'),
-            'ajuste_caudal':  (6, '#534AB7', 'Ajuste caudal'),
-            'orden_medica':   (5, '#378ADD', 'Orden médica'),
-            'sensor_flujo':   (4, '#1D9E75', 'Sensor flujo'),
-            'alarma_critica': (3, '#E24B4A', 'Alarma crítica'),
-            'alarma_media':   (2, '#EF9F27', 'Alarma media'),
-            'alarma_baja':    (1, '#639922', 'Alarma baja'),
-            'detener_bomba':  (0, '#A32D2D', 'Detener bomba'),
+        'confirmacion':   (8, '#9B59B6', 'Confirmación enfermero'),  # ← nueva
+        'fin_bolsa':      (7, '#D4537E', 'Fin bolsa'),
+        'ajuste_caudal':  (6, '#534AB7', 'Ajuste caudal'),
+        'orden_medica':   (5, '#378ADD', 'Orden médica'),
+        'sensor_flujo':   (4, '#1D9E75', 'Sensor flujo'),
+        'alarma_critica': (3, '#E24B4A', 'Alarma crítica'),
+        'alarma_media':   (2, '#EF9F27', 'Alarma media'),
+        'alarma_baja':    (1, '#639922', 'Alarma baja'),
+        'detener_bomba':  (0, '#A32D2D', 'Detener bomba'),
         }
 
         MAPA_ALARMA_STR = {
@@ -125,7 +135,11 @@ class Simulacion():
         metricas_ct = self.monitor_controlador.obtener_metricas()
 
         eventos = {k: [] for k in FILAS}
-
+        metricas_conf = self.monitor_confirmacion.obtener_metricas()
+        
+        for t, _ in metricas_conf.get('confirmaciones', []):
+            eventos['confirmacion'].append(t)
+            
         for t, _ in metricas_c.get('caudal_indicado', []):
             eventos['orden_medica'].append(t)
         for t, _ in metricas_c.get('caudal_real', []):
@@ -174,7 +188,7 @@ class Simulacion():
         y_labels = [label for _, _, label in FILAS.values()]
         ax1.set_yticks(y_vals)
         ax1.set_yticklabels(y_labels, fontsize=9)
-        ax1.set_ylim(-0.6, 7.6)
+        ax1.set_ylim(-0.6, 8.6)
         ax1.set_xlabel('Tiempo (s)', fontsize=11)
         ax1.set_title(f'Timeline de eventos — {titulo}', fontsize=13)
         ax1.grid(axis='x', alpha=0.25)
@@ -304,11 +318,12 @@ class Simulacion():
             eventos.append((t, 'SIN_ERROR'))
         for t, _ in metricas['ordenApagar']:
             eventos.append((t, 'APAGADO'))
+            
         for t, tipo in metricas['alarmas']:
             if tipo == EstadoBomba.ALARMA_MEDIA:
                 eventos.append((t, 'ALARMA_MEDIA'))
             elif tipo == EstadoBomba.ALARMA_CRITICA:
-                eventos.append((t, 'APAGADO'))        # crítica → se apaga
+                eventos.append((t, 'ALARMA_CRITICA'))
             elif tipo == EstadoBomba.ALARMA_BAJA:
                 eventos.append((t, 'FIN_BOLSA'))
 
@@ -320,24 +335,27 @@ class Simulacion():
 
         # Mapa de estados a valores numéricos (eje Y)
         ESTADOS = {
-            'SIN_ERROR':    4,
-            'ALARMA_MEDIA': 3,
-            'FIN_BOLSA':    2,
-            'APAGADO':      1,
+            'SIN_ERROR':      5,
+            'ALARMA_MEDIA':   4,
+            'FIN_BOLSA':      3,
+            'ALARMA_CRITICA': 2,
+            'APAGADO':        1,
         }
         COLORES = {
-            'SIN_ERROR':    '#22c55e',
-            'ALARMA_MEDIA': '#f97316',
-            'FIN_BOLSA':    '#f59e0b',
-            'APAGADO':      '#dc2626',
+            'SIN_ERROR':      '#22c55e',
+            'ALARMA_MEDIA':   '#f97316',
+            'FIN_BOLSA':      '#f59e0b',
+            'ALARMA_CRITICA': '#9B59B6',
+            'APAGADO':        '#dc2626',
         }
         ETIQUETAS = {
-            'SIN_ERROR':    'Sin error',
-            'ALARMA_MEDIA': 'Alarma media',
-            'FIN_BOLSA':    'Fin de bolsa',
-            'APAGADO':      'Apagado / Alarma crítica',
+            'SIN_ERROR':      'Sin error',
+            'ALARMA_MEDIA':   'Alarma media',
+            'FIN_BOLSA':      'Fin de bolsa',
+            'ALARMA_CRITICA': 'Alarma crítica',
+            'APAGADO':        'Apagado',
         }
-
+        
         fig, ax = plt.subplots(figsize=(12, 4))
 
         t_fin = self.tiempoSimulacion
@@ -363,7 +381,7 @@ class Simulacion():
         ax.set_xlabel('Tiempo (s)', fontsize=11)
         ax.set_title(f'Estado de la bomba — {titulo}', fontsize=13)
         ax.set_xlim(0, t_fin)
-        ax.set_ylim(0.4, 4.6)
+        ax.set_ylim(0.4, 5.6)
         ax.grid(axis='x', alpha=0.3)
 
         plt.tight_layout()

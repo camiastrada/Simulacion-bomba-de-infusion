@@ -37,22 +37,23 @@ class BolsaDeInfusion(Atomic):
             consumo = self.caudal_actual * (e / 3600.0)
             self.volumen_actual = max(0.0, self.volumen_actual - consumo)
 
-        # 2. Procesar nuevo caudal
         if not self.i_caudal.empty():
-            self.caudal_actual = self.i_caudal.get()
+                nuevo_caudal = self.i_caudal.get()
             
-            if self.caudal_actual > 0:
-                tiempo_para_vaciado = (self.volumen_actual / self.caudal_actual) * 3600.0
-                # Queremos disparar la alarma cuando falten 60 segundos.
-                tiempo_para_alarma = tiempo_para_vaciado - 60.0
-                
-                if tiempo_para_alarma <= 0:
-                    self.hold_in("vaciando", 0)
+                if nuevo_caudal != self.caudal_actual:
+                    # Solo recalcular sigma si el caudal cambió
+                    self.caudal_actual = nuevo_caudal
+                    if self.caudal_actual > 0:
+                        tiempo_vaciado = (self.volumen_actual / self.caudal_actual) * 3600.0
+                        self.hold_in("vaciando", max(0.0, tiempo_vaciado - 60.0))
+                    else:
+                        self.hold_in("pausada", INFINITY)
                 else:
-                    self.hold_in("vaciando", tiempo_para_alarma)
-            else:
-                self.hold_in("pausada", INFINITY)
-
+                    # Caudal no cambió: solo actualizar sigma sin reiniciarlo
+                    self.sigma -= e  
+                    self.hold_in(self.phase, self.sigma)
+                    
+              
         # 3. Reset por confirmación
         elif not self.i_confirmacion.empty():
             if self.i_confirmacion.get() and self.volumen_actual <= 0:
