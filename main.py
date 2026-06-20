@@ -39,6 +39,30 @@ def escenario7():
     simular.graficar_caudal("Escenario7_AlarmaCritica_ConfirmacionTarde")
     simular.graficar_estado_bomba("Escenario7_AlarmaCritica_ConfirmacionTarde")
 
+def escenario6(): 
+    
+    # Escenario 6: Fin de bolsa con confirmación del enfermero
+    # Se fija caudal alto para vaciar la bolsa en un tiempo corto de simulación.
+    # El enfermero confirma la alarma baja luego de 20s.
+    def funcion_caudal_max():
+         return 200.0
+
+    valores_emision = iter([1.0, 60000.0])
+    def funcion_emision_orden():
+         return next(valores_emision, 3000)
+
+
+    def t_confirmacion_enfermero():
+        return 20.0
+
+    simular = Simulacion("SimulacionBombaInfusion")
+    simular.iniciar_simulacion(2000.0, funcion_caudal_max, funcion_emision_orden , None, t_confirmacion_enfermero)
+    simular.mostrar_metricas()
+    simular.graficar_timeline("Escenario6_FinBolsa_ConfirmacionEnfermero")
+    simular.graficar_caudal("Escenario6_FinBolsa_ConfirmacionEnfermero")
+    simular.graficar_estado_bomba("Escenario6_FinBolsa_ConfirmacionEnfermero")
+    
+    
 if __name__ == "__main__":
 
     simular = Simulacion("SimulacionBombaInfusion")
@@ -67,27 +91,7 @@ if __name__ == "__main__":
     simular.mostrar_metricas()
 
 
-    # Escenario 6: Fin de bolsa con confirmación del enfermero
-    # Se fija caudal alto para vaciar la bolsa en un tiempo corto de simulación.
-    # El enfermero confirma la alarma baja luego de 20s.
-    def funcion_caudal_max():
-         return 200.0
-
-    valores_emision = iter([1.0, 60000.0])
-    def funcion_emision_orden():
-         return next(valores_emision, 3000)
-
-
-    def t_confirmacion_enfermero():
-        return 20.0
-
-    simular = Simulacion("SimulacionBombaInfusion")
-    simular.iniciar_simulacion(2000.0, funcion_caudal_max, funcion_emision_orden , None, t_confirmacion_enfermero)
-    simular.mostrar_metricas()
-    simular.graficar_timeline("Escenario6_FinBolsa_ConfirmacionEnfermero")
-    simular.graficar_caudal("Escenario6_FinBolsa_ConfirmacionEnfermero")
-    simular.graficar_estado_bomba("Escenario6_FinBolsa_ConfirmacionEnfermero")
-
+    escenario6()
     escenario7()
 
     # #Escenario 3 se genera orden 0.0
