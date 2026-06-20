@@ -1,5 +1,7 @@
 from xdevs.models import Atomic, Port, INFINITY
-from lib import EstadoBomba, error_caudal, AccionBomba
+from lib import EstadoBomba, error_caudal, AccionBomba, CAUDAL_MAX, CAUDAL_MIN
+import random
+
 
 
 #Controlador de bomba de infusión
@@ -21,6 +23,9 @@ class Controlador(Atomic):
         #Puerto de salida
         self.add_out_port(self.o_mensaje_actuador)
         self.add_out_port(self.o_alarma)
+
+
+        self.delay = lambda: random.uniform(0.1, 3)
     
     #Estado del controlador(caudal_indicado, sigma_orden, ultima_medicion, estado_bomba, sigma_bomba)
     def initialize(self):    
@@ -115,25 +120,31 @@ class Controlador(Atomic):
                 self.sigma_orden = 0.0
                 self.sigma_bomba -= e
             elif x > 0.0:
-                #Si el caudal indicado es distinto de cero, hay que ajustar el caudal
-                self.caudal_indicado = x
-                self.sigma_orden = 3.0
-                #Si el caudal no causa error, y antes tenia error, pasa a estas sin error
-                #Si el caudal no causa error, y antes no tenia error, se mantiene sin error
-                if (self.estado_bomba in {EstadoBomba.SIN_ERROR, EstadoBomba.ALARMA_MEDIA, EstadoBomba.ALARMA_CRITICA, EstadoBomba.ERROR_CAUDAL} and (not error_caudal(x, self.ultima_medicion))):
-                    self.estado_bomba = EstadoBomba.SIN_ERROR 
-                    self.sigma_bomba = INFINITY
-                #la nueva indicacion cuasa error, y antes no tenia error, pasa a error de caudal
-                elif (self.estado_bomba in {EstadoBomba.SIN_ERROR} and error_caudal(x, self.ultima_medicion)):
-                    self.estado_bomba = EstadoBomba.ERROR_CAUDAL
-                    self.sigma_bomba = 8.0
-                #la nueva indicacion cuasa error, y antes ya tenia error, se mantiene en error de caudal
-                elif (self.estado_bomba in {EstadoBomba.ALARMA_MEDIA, EstadoBomba.ALARMA_CRITICA, EstadoBomba.ERROR_CAUDAL} and (error_caudal(x, self.ultima_medicion))):
+                if (x > CAUDAL_MAX or x < CAUDAL_MIN):
+                    #Si el caudal indicado es mayor al máximo o menor al mínimo, se considera un error y se rechaza la orden
+                    print("Orden médica de caudal fuera de rango, se rechaza la orden")
+                    self.sigma_orden -= e
                     self.sigma_bomba -= e
-                #Es estado esta en alarma baja, se mantiene en alarma baja
-                elif (self.estado_bomba in {EstadoBomba.ALARMA_BAJA}):
-                    self.sigma_bomba -= e
-        
+                else:
+                    #Si el caudal indicado es distinto de cero, hay que ajustar el caudal
+                    self.caudal_indicado = x
+                    self.sigma_orden = self.delay()
+                    #Si el caudal no causa error, y antes tenia error, pasa a estas sin error
+                    #Si el caudal no causa error, y antes no tenia error, se mantiene sin error
+                    if (self.estado_bomba in {EstadoBomba.SIN_ERROR, EstadoBomba.ALARMA_MEDIA, EstadoBomba.ALARMA_CRITICA, EstadoBomba.ERROR_CAUDAL} and (not error_caudal(x, self.ultima_medicion))):
+                        self.estado_bomba = EstadoBomba.SIN_ERROR 
+                        self.sigma_bomba = INFINITY
+                    #la nueva indicacion cuasa error, y antes no tenia error, pasa a error de caudal
+                    elif (self.estado_bomba in {EstadoBomba.SIN_ERROR} and error_caudal(x, self.ultima_medicion)):
+                        self.estado_bomba = EstadoBomba.ERROR_CAUDAL
+                        self.sigma_bomba = 5 + self.delay()
+                    #la nueva indicacion cuasa error, y antes ya tenia error, se mantiene en error de caudal
+                    elif (self.estado_bomba in {EstadoBomba.ALARMA_MEDIA, EstadoBomba.ALARMA_CRITICA, EstadoBomba.ERROR_CAUDAL} and (error_caudal(x, self.ultima_medicion))):
+                        self.sigma_bomba -= e
+                    #Es estado esta en alarma baja, se mantiene en alarma baja
+                    elif (self.estado_bomba in {EstadoBomba.ALARMA_BAJA}):
+                        self.sigma_bomba -= e
+            
         #Entrada de una nueva medicion de caudal
         elif not self.i_caudal_real.empty():
             #Actualiza la ultima medicion del sensor
