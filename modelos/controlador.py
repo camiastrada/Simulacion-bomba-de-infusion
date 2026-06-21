@@ -122,7 +122,6 @@ class Controlador(Atomic):
             elif x > 0.0:
                 if (not(verificar_rango_caudal(x))):
                     #Si el caudal indicado es mayor al máximo o menor al mínimo, se considera un error y se rechaza la orden
-                    print("Orden médica de caudal fuera de rango, se rechaza la orden")
                     self.sigma_orden -= e
                     self.sigma_bomba -= e
                 else:
@@ -178,7 +177,6 @@ class Controlador(Atomic):
 
         #Entrada de confirmación del enfermero
         elif not self.i_confirmacion.empty():
-            print("Controlador recibe confirmación del enfermero")
             confirmacion = self.i_confirmacion.get()
             if confirmacion and self.estado_bomba == EstadoBomba.ALARMA_CRITICA:
                 #Si se confirma la alarma crítica, se vuelve al estado sin error

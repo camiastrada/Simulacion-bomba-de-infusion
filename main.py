@@ -18,7 +18,6 @@ def escenario1():
      simular.graficar_timeline("Escenario 1: Funcionamiento normal sin fallas")
      simular.graficar_caudal("Escenario 1: Funcionamiento normal sin fallas") 
      simular.graficar_estado_bomba("Bomba: Funcionamiento normal sin fallas")
-     simular.contar_detenciones_preventivas()
 
 # Escenario 2: Cambia orden medica durante la infusion
 # el generador emite una orden de 50, y a los 2 segundo emite orden de 80... luego no deberia emitir nada por 10000 segundos
@@ -37,7 +36,6 @@ def escenario2():
      simular.graficar_timeline( "Escenario 2: Cambia orden medica durante la infusión")
      simular.graficar_caudal("Escenario 2: Cambia orden medica durante la infusión") 
      simular.graficar_estado_bomba("Bomba: Cambia orden medica durante la infusión")
-     simular.contar_detenciones_preventivas()
 
 # Escenario 3 se genera orden 0.0
 def escenario3():
@@ -52,7 +50,6 @@ def escenario3():
      simular.graficar_timeline( "Escenario 3: Se genera orden 0.0")
      simular.graficar_caudal("Escenario 3: Se genera orden 0.0") 
      simular.graficar_estado_bomba("Bomba escenario 3: Se genera orden 0.0")
-     simular.contar_detenciones_preventivas()
 
 
 #Error de caudal
@@ -87,7 +84,6 @@ def escenario4():
      simular.graficar_timeline( "Escenario 4: Desvío leve de caudal que es corregido por el controlador ")
      simular.graficar_caudal( "Caudal Escenario 4: Desvío leve de caudal que es corregido por el controlador ")
      simular.graficar_estado_bomba( "Bomba Escenario 4: Desvío leve de caudal que es corregido por el controlador ")
-     simular.contar_detenciones_preventivas()
 
 
 # Escenario 5: Por momentos el caudal real es distinto al indicado, el controlador pasa a alarma media, pero no llega a alarma critica
@@ -101,7 +97,6 @@ def escenario5_con_alarma_media():
      simular.graficar_timeline( "Escenario 5 con Alarma Media. Desvío de caudal mayor al 10 porciento durante más de 5 segundos.")
      simular.graficar_caudal( " Escenario 5 con Alarma Media.  Desvío de caudal mayor al 10 porciento durante más de 5 segundos.")
      simular.graficar_estado_bomba( " Escenario 5 con Alarma Media. Desvío de caudal mayor al 10 porciento durante más de 5 segundos.")
-     simular.contar_detenciones_preventivas()
 
 # Escenarip 5: Por momentos el caudal real es distinto al indicado, el controlador pasa a alarma media, y luego llega a alarma critica
 def escenario5_con_alarma_critica():
@@ -109,7 +104,6 @@ def escenario5_con_alarma_critica():
      simular = Simulacion("SimulacionBombaInfusion")
      simular.iniciar_simulacion(3600.0,None,None,funcion_con_error(12,120,300),None)
      simular.mostrar_metricas()  
-     simular.contar_detenciones_preventivas()
      simular.graficar_timeline( "Escenario 5 con Alarma Crítica. Desvío de caudal mayor al 10 porciento durante más de 5 segundos.")
      simular.graficar_caudal( " Escenario 5 con Alarma Crítica.  Desvío de caudal mayor al 10 porciento durante más de 5 segundos.")
      simular.graficar_estado_bomba( " Escenario 5 con Alarma Crítica. Desvío de caudal mayor al 10 porciento durante más de 5 segundos.")

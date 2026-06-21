@@ -20,7 +20,6 @@ class Actuador(Atomic):
     def exit(self): pass
 
     def lambdaf(self):
-        print("Caudal real: ", self.caudal_pendiente)
         self.o_caudal_real.add(self.caudal_pendiente)
         
     def deltint(self):

@@ -169,50 +169,26 @@ class Simulacion():
             print("  No se detectaron salidas de alarma.")
         else:
             print(f"  Total de alarmas generadas: {len(metricas_controlador['alarmas'])}")
-            for i, (tiempo, alarma) in enumerate(metricas_controlador['alarmas']):
-                print(f"    {i+1}. Tiempo: {tiempo:.2f}s - Alarma: {alarma}")
+           
 
         if not metricas_controlador['ajustarCaudal']:
             print("  No se detectaron ajustes de caudal.")
         else:   
             print(f"  Total de ajustes de caudal: {len(metricas_controlador['ajustarCaudal'])}")
-            for i, (tiempo, caudal) in enumerate(metricas_controlador['ajustarCaudal']):
-                print(f"    {i+1}. Tiempo: {tiempo:.2f}s - Caudal ajustado: {caudal}")
+            
 
         if not metricas_controlador['ordenApagar']:
             print("  No se detecto apagado en la bomba.")
         else:   
             print(f"  Total ordenes de apagar: {len(metricas_controlador['ordenApagar'])}")
-            for i, (tiempo, caudal) in enumerate(metricas_controlador['ordenApagar']):
-                print(f"    {i+1}. Tiempo: {tiempo:.2f}s - Caudal ajustado: {caudal}")
+            
 
         print("\n[ Monitor de la bolsa ]")
         print (f"  Total de alertas de fin de bolsa: {self.monitor_bolsa.obtener_cantidad_de_datos()}")
         print(f"  Tiempo de respuesta promedio desde alerta de fin de bolsa hasta acción del controlador: {self.monitor_bolsa.obtener_tiempo_respuesta_promedio():.4f}s")
         print("-----------------------------\n")
-
-    def contar_detenciones_preventivas(self):
-        metricas = self.monitor_detenciones.obtener_metricas()
-        print(f"Total de detenciones preventivas: {metricas['preventivas']}")
-        print(f"Total de detenciones normales:     {metricas['normales']}")
-        return metricas['preventivas']
-
-
-    # def contar_detenciones_preventivas(self):
-    #     metricas = self.monitor_controlador.obtener_metricas()
         
-    #     # Tiempos en que hubo alarma (baja o crítica)
-    #     t_alarmas = {t for t, tipo in metricas['alarmas'] 
-    #                 #if tipo in {EstadoBomba.ALARMA_BAJA, EstadoBomba.ALARMA_CRITICA}}
-    #                 if tipo in {EstadoBomba.ALARMA_CRITICA}}
-        
-    #     count = 0
-    #     for t_apagado, _ in metricas['ordenApagar']:
-    #         # Si se agrega lo de alarmaBaja, deberia comprobar si 65 segundos anteriores hubo una alarma, es preventiva
-    #         if any(t_apagado - 10 <= t_a <= t_apagado for t_a in t_alarmas):
-    #             count += 1
-    #     print(f"Total de detenciones preventivas detectadas: {count}")
-    #     return count
+        print("\n[ Monitor de detenciones ]")
+        metricas_detenciones = self.monitor_detenciones.obtener_metricas()
+        print(f"  Total de detenciones registradas: {metricas_detenciones['total']}")
 
-
-  
