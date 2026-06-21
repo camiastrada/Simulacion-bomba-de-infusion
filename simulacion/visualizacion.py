@@ -70,9 +70,10 @@ class Visualizacion:
         metricas_a  = self.monitores['alarmas'].obtener_metricas()
         metricas_ct = self.monitores['controlador'].obtener_metricas()
         metricas_cf = self.monitores['confirmacion'].obtener_metricas()
+        metricas_b  = self.monitores['fin_bolsa'].obtener_metricas()
 
         eventos = self._construir_eventos_timeline(
-            metricas_c, metricas_a, metricas_ct, metricas_cf
+            metricas_c, metricas_a, metricas_ct, metricas_cf, metricas_b
         )
 
         fig, ax1 = plt.subplots(figsize=(14, 5))
@@ -113,9 +114,12 @@ class Visualizacion:
         plt.tight_layout()
 
 
-    def _construir_eventos_timeline(self, metricas_c, metricas_a, metricas_ct, metricas_cf) -> dict:
+    def _construir_eventos_timeline(self, metricas_c, metricas_a, metricas_ct, metricas_cf,metricas_b) -> dict:
         eventos = {k: [] for k in FILAS_TIMELINE}
 
+        for t, _ in metricas_b.get('tiempos_llegada_fin_bolsa', []):
+            eventos['fin_bolsa'].append(t)
+            
         for t, _ in metricas_cf.get('confirmaciones', []):
             eventos['confirmacion'].append(t)
 

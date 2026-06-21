@@ -112,6 +112,7 @@ class Simulacion():
                             'alarmas':       self.monitor_alarmas,
                             'controlador':   self.monitor_controlador,
                             'confirmacion':  self.monitor_confirmacion,
+                            'fin_bolsa':     self.monitor_bolsa,
                         },
                         tiempo_simulacion=self.tiempoSimulacion
                     )
@@ -171,8 +172,9 @@ class Simulacion():
             
 
         print("\n[ Monitor de la bolsa ]")
-        print (f"  Total de alertas de fin de bolsa: {self.monitor_bolsa.obtener_cantidad_de_datos()}")
-        print(f"  Tiempo de respuesta promedio desde alerta de fin de bolsa hasta acción del controlador: {self.monitor_bolsa.obtener_tiempo_respuesta_promedio():.4f}s")
+        metricas_bolsa = self.monitor_bolsa.obtener_metricas()
+        print (f"  Total de alertas de fin de bolsa: {metricas_bolsa['cantidad_datos']}")
+        print(f"  Tiempo de respuesta promedio desde alerta de fin de bolsa hasta acción del controlador: {metricas_bolsa['respuesta_promedio']}s")
        
         
         print("\n[ Monitor de detenciones ]")

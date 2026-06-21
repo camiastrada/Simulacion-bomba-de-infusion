@@ -56,7 +56,8 @@ class BolsaDeInfusion(Atomic):
               
         # 3. Reset por confirmación
         elif not self.i_confirmacion.empty():
-            if self.i_confirmacion.get() and self.volumen_actual <= 0:
+            
+            if self.i_confirmacion.get():
                 self.volumen_actual = CAPACIDAD_BOMBA
                 self.hold_in("llena", INFINITY)
 
