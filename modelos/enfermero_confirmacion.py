@@ -1,6 +1,6 @@
 import random
 from xdevs.models import Atomic, Port, INFINITY
-from lib import CAUDAL_MAX, CAUDAL_MIN
+from lib import CAUDAL_MAX, CAUDAL_MIN, EstadoBomba
 
 
 #Generador de órdenes médicas de caudal para la bomba de infusión
@@ -41,7 +41,8 @@ class EnfermeroConfirmacion(Atomic):
     def deltext(self, e):
         print("Enfermero recibe mensaje de alerta de alarma")
         if not self.i_alerta_alarma.empty():
-            if self.i_alerta_alarma.get() in {"alarmaCritica", "alarmaBaja"}:
+            alerta = self.i_alerta_alarma.get()
+            if alerta is EstadoBomba.ALARMA_BAJA or alerta is EstadoBomba.ALARMA_CRITICA:
                 if not self.alarmaActiva:
                     # Primera vez que recibe la alarma → iniciar countdown
                     self.alarmaActiva = True

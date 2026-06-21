@@ -13,7 +13,7 @@ import random
 def escenario1():
      simular = Simulacion("SimulacionBombaInfusion")
      simular.iniciar_simulacion(86400.0,None,None,None,None)
-     simular.mostrar_metricas()
+     #simular.mostrar_metricas()
      simular.graficar_timeline()
      simular.graficar_caudal("Escenario1_Normal") 
      simular.graficar_estado_bomba("Escenario1_Normal")
@@ -31,7 +31,7 @@ def escenario2():
           return next(valores_g, 3000)
      simular = Simulacion("SimulacionBombaInfusion")
      simular.iniciar_simulacion(86400.0,f,g,None,None)
-     simular.mostrar_metricas()
+     #simular.mostrar_metricas()
 
 # Escenario 3 se genera orden 0.0
 def escenario3():
@@ -142,7 +142,7 @@ def escenario6():
 
 
      def t_confirmacion_enfermero():
-          return 20.0
+          return 25.0
 
      simular = Simulacion("SimulacionBombaInfusion")
      simular.iniciar_simulacion(2000.0, funcion_caudal_max, funcion_emision_orden , None, t_confirmacion_enfermero)
@@ -170,30 +170,30 @@ def escenario8():
     
 if __name__ == "__main__":
 
-     # #Escenario 1: Funcionamiento normal sin fallas
-     escenario1()
+     # # #Escenario 1: Funcionamiento normal sin fallas
+     # escenario1()
 
-     # #Escenario 2: Cambia orden medica durante la infusion
-     # #el generador emite una orden de 50, y a los 2 segundo emite orden de 80... luego no deberia emitir nada por 10000 segundos
-     escenario2()
+     # # #Escenario 2: Cambia orden medica durante la infusion
+     # # #el generador emite una orden de 50, y a los 2 segundo emite orden de 80... luego no deberia emitir nada por 10000 segundos
+     # escenario2()
 
-     # Escenario 3 se genera orden 0.0
-     escenario3()
+     # # Escenario 3 se genera orden 0.0
+     # escenario3()
 
-     # Escenario 4: Por momentos el caudal real es distinto al indicado, pero el controlador lo maneja y no salen alarmas
-     escenario4()
+     # # Escenario 4: Por momentos el caudal real es distinto al indicado, pero el controlador lo maneja y no salen alarmas
+     # escenario4()
 
-     # Escenario 5: Por momentos el caudal real es distinto al indicado, el controlador pasa a alarma media, pero no llega a alarma critica
-     escenario5_con_alarma_media()
+     # # Escenario 5: Por momentos el caudal real es distinto al indicado, el controlador pasa a alarma media, pero no llega a alarma critica
+     # escenario5_con_alarma_media()
 
-     # Escenario 5: Por momentos el caudal real es distinto al indicado, el controlador pasa a alarma media, y luego llega a alarma critica
-     escenario5_con_alarma_critica()
+     # # Escenario 5: Por momentos el caudal real es distinto al indicado, el controlador pasa a alarma media, y luego llega a alarma critica
+     # escenario5_con_alarma_critica()
 
      # Escenario 6: Fin de bolsa con confirmación del enfermero
-     escenario6()
+     escenario6() 
 
      # Escenario 7: Alarma crítica - sensor mide mal, enfermero confirma tarde
      escenario7()
 
      # Escenario 8: Trato de generar ordenes mayor a caudal maximo (200)
-     escenario8()
+     #escenario8()
