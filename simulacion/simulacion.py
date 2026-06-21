@@ -44,7 +44,7 @@ class Simulacion():
 
 
         print("=========================================")
-        print(" INICIANDO SIMULACIÓN DE EVENTOS DISCRETOS")
+        print(" SIMULACIÓN DE EVENTOS DISCRETOS")
         print("=========================================")
 
         # 5. Loop de simulacion
@@ -103,9 +103,6 @@ class Simulacion():
             self.simulador.clear()
             self.simulador.clock.time = self.simulador.time_next
 
-        print("=========================================")
-        print(" SIMULACIÓN FINALIZADA CON ÉXITO")
-        print("=========================================")
         
         self.tiempoSimulacion= self.simulador.clock.time
 
@@ -125,11 +122,12 @@ class Simulacion():
             
            
 
-    def mostrar_metricas(self):
+    def mostrar_metricas(self, descripcion_escenario="Simulación"):
   
         # Obtener y mostrar las métricas de los monitores
+        print(descripcion_escenario)
         print("\n--- MÉTRICAS RECOLECTADAS ---")
-
+       
         print("\n[ Monitor de Caudal ]")
         metricas_caudal = self.monitor_caudal.obtener_metricas()
         print(f"  Caudales indicados registrados: {len(metricas_caudal['caudal_indicado'])}")
@@ -150,9 +148,7 @@ class Simulacion():
             print("  No se completaron ajustes de caudal para medir respuesta.")
         else:
             print(f"  Ajustes de caudal medidos: {len(metricas_respuesta['tiempos_respuesta'])}")
-            tiempos = metricas_respuesta['tiempos_respuesta']
-            avg_tiempo = sum(tiempos) / len(tiempos)
-            print(f"  Tiempo de respuesta promedio: {avg_tiempo:.4f}s")
+            print(f"  Tiempo de respuesta promedio: {metricas_respuesta['promedio_respuesta']}s")
         
         print("\n[ Monitor del controlador ]")
         metricas_controlador = self.monitor_controlador.obtener_metricas()
@@ -177,9 +173,11 @@ class Simulacion():
         print("\n[ Monitor de la bolsa ]")
         print (f"  Total de alertas de fin de bolsa: {self.monitor_bolsa.obtener_cantidad_de_datos()}")
         print(f"  Tiempo de respuesta promedio desde alerta de fin de bolsa hasta acción del controlador: {self.monitor_bolsa.obtener_tiempo_respuesta_promedio():.4f}s")
-        print("-----------------------------\n")
+       
         
         print("\n[ Monitor de detenciones ]")
         metricas_detenciones = self.monitor_detenciones.obtener_metricas()
         print(f"  Total de detenciones registradas: {metricas_detenciones['total']}")
+        
+        print("-----------------------------\n")
 

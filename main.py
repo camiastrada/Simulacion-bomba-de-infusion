@@ -13,11 +13,11 @@ import random
 
 # Escenario 1: Funcionamiento normal sin fallas
 def escenario1():
-     print("Escenario 1: Funcionamiento normal sin fallas")
+     escenario1 = "Escenario 1: Funcionamiento normal sin fallas"
      simular = Simulacion("SimulacionBombaInfusion")
      simular.iniciar_simulacion(10800.0,None,None,None,None)
-     simular.mostrar_metricas()
-     simular.graficar_metricas("Escenario 1: Funcionamiento normal sin fallas")
+     simular.mostrar_metricas(escenario1)
+     simular.graficar_metricas(escenario1)
      plt.show()
 
 # Escenario 2: Cambia orden medica durante la infusion
@@ -91,10 +91,10 @@ def escenario5_con_alarma_media():
 
 # Escenarip 5: Por momentos el caudal real es distinto al indicado, el controlador pasa a alarma media, y luego llega a alarma critica
 def escenario5_con_alarma_critica():
-     print("Escenario 5: Por momentos el caudal real es distinto al indicado, el controlador pasa a alarma media, y luego llega a alarma crítica")
+     escenario5 = "Escenario 5 con Alarma Crítica. Desvío de caudal mayor al 10 porciento durante más de 5 segundos."
      simular = Simulacion("SimulacionBombaInfusion")
      simular.iniciar_simulacion(3600.0,None,None,funcion_con_error(12,120,300),None)
-     simular.mostrar_metricas()  
+     simular.mostrar_metricas(escenario5)  
      simular.graficar_metricas("Escenario 5 con Alarma Crítica. Desvío de caudal mayor al 10 porciento durante más de 5 segundos.")
      
 

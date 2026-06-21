@@ -22,9 +22,15 @@ class MonitorRespuesta:
 
     def obtener_metricas(self):
         return {
-            "tiempos_respuesta": self.tiempos_respuesta
+            "tiempos_respuesta": self.tiempos_respuesta,
+            "promedio_respuesta": self.promedio(),
         }
         
+    def promedio(self):
+        if not self.tiempos_respuesta:
+            return 0
+        return sum(self.tiempos_respuesta) / len(self.tiempos_respuesta)
+    
     def obtener_cantidad_de_datos(self):
         return len(self.tiempos_respuesta)
     
