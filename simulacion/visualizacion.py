@@ -38,7 +38,7 @@ COLORES_ALARMA_CAUDAL = {
 ESTADOS_BOMBA = {
     'SIN_ERROR':      (5, '#22c55e', 'Sin error'),
     'ALARMA_MEDIA':   (4, '#f97316', 'Alarma media'),
-    'FIN_BOLSA':      (3, '#f59e0b', 'Fin de bolsa'),
+    'ALARMA_BAJA':      (3, '#f59e0b', 'Alarma baja'),
     'ALARMA_CRITICA': (2, '#9B59B6', 'Alarma crítica'),
     'APAGADO':        (1, '#dc2626', 'Apagado'),
 }
@@ -242,7 +242,7 @@ class Visualizacion:
             elif tipo == EstadoBomba.ALARMA_CRITICA:
                 eventos.append((t, 'ALARMA_CRITICA'))
             elif tipo == EstadoBomba.ALARMA_BAJA:
-                eventos.append((t, 'FIN_BOLSA'))
+                eventos.append((t, 'ALARMA_BAJA'))
 
         eventos.sort(key=lambda e: e[0])
         return eventos
