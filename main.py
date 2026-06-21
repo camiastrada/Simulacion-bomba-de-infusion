@@ -12,11 +12,11 @@ import random
 # Escenario 1: Funcionamiento normal sin fallas
 def escenario1():
      simular = Simulacion("SimulacionBombaInfusion")
-     simular.iniciar_simulacion(86400.0,None,None,None,None)
-     #simular.mostrar_metricas()
-     simular.graficar_timeline()
-     simular.graficar_caudal("Escenario1_Normal") 
-     simular.graficar_estado_bomba("Escenario1_Normal")
+     simular.iniciar_simulacion(10800.0,None,None,None,None)
+     simular.mostrar_metricas()
+     simular.graficar_timeline("Escenario 1: Funcionamiento normal sin fallas")
+     simular.graficar_caudal("Escenario 1: Funcionamiento normal sin fallas") 
+     simular.graficar_estado_bomba("Bomba: Funcionamiento normal sin fallas")
      simular.contar_detenciones_preventivas()
 
 # Escenario 2: Cambia orden medica durante la infusion
@@ -30,8 +30,12 @@ def escenario2():
      def g():
           return next(valores_g, 3000)
      simular = Simulacion("SimulacionBombaInfusion")
-     simular.iniciar_simulacion(86400.0,f,g,None,None)
-     #simular.mostrar_metricas()
+     simular.iniciar_simulacion(10800.0,f,g,None,None)
+     simular.mostrar_metricas()
+     simular.graficar_timeline( "Escenario 2: Cambia orden medica durante la infusión")
+     simular.graficar_caudal("Escenario 2: Cambia orden medica durante la infusión") 
+     simular.graficar_estado_bomba("Bomba: Cambia orden medica durante la infusión")
+     simular.contar_detenciones_preventivas()
 
 # Escenario 3 se genera orden 0.0
 def escenario3():
@@ -40,9 +44,12 @@ def escenario3():
                return 0.0
           return random.uniform(0.0, 200.0)
      simular = Simulacion("SimulacionBombaInfusion")
-     simular.iniciar_simulacion(86400.0,f,None)
+     simular.iniciar_simulacion(10800.0,f,None)
      simular.mostrar_metricas()  
-     simular.graficar_caudal("Llega alguna orden 0") 
+     simular.graficar_timeline( "Escenario 3: Se genera orden 0.0")
+     simular.graficar_caudal("Escenario 3: Se genera orden 0.0") 
+     simular.graficar_estado_bomba("Bomba escenario 3: Se genera orden 0.0")
+     simular.contar_detenciones_preventivas()
 
 
 #Error de caudal
@@ -71,30 +78,60 @@ def funcion_con_error(n_errores=4, inicio_minimo=5, inicio_maximo=15):
 def escenario4():     
      simular = Simulacion("SimulacionBombaInfusion")
      simular.iniciar_simulacion(3600.0,None,None,funcion_con_error(4,120,300),None)
-     simular.graficar_timeline("Escenario Error Poco tiempo")
-     simular.graficar_caudal("Escenario Error Poco tiempo")
-     simular.graficar_estado_bomba("Escenario Error Poco tiempo")
+     simular.mostrar_metricas()  
+     simular.graficar_timeline( "Escenario 4: Desvío leve de caudal que es corregido por el controlador ")
+     simular.graficar_caudal( "Caudal Escenario 4: Desvío leve de caudal que es corregido por el controlador ")
+     simular.graficar_estado_bomba( "Bomba Escenario 4: Desvío leve de caudal que es corregido por el controlador ")
+     simular.contar_detenciones_preventivas()
 
-# Escenarip 5: Por momentos el caudal real es distinto al indicado, el controlador pasa a alarma media, pero no llega a alarma critica
+
+# Escenario 5: Por momentos el caudal real es distinto al indicado, el controlador pasa a alarma media, pero no llega a alarma critica
 
 
 def escenario5_con_alarma_media():     
      simular = Simulacion("SimulacionBombaInfusion")
      simular.iniciar_simulacion(3600.0,None,None,funcion_con_error(7,10,300),None)
-     simular.graficar_timeline("Escenario Error Poco tiempo")
-     simular.graficar_caudal("Escenario Error Poco tiempo")
-     simular.graficar_estado_bomba("Escenario Error Poco tiempo")
-
+     simular.mostrar_metricas()  
+     simular.graficar_timeline( "Escenario 5 con Alarma Media. Desvío de caudal mayor al 10 porciento durante más de 5 segundos.")
+     simular.graficar_caudal( " Escenario 5 con Alarma Media.  Desvío de caudal mayor al 10 porciento durante más de 5 segundos.")
+     simular.graficar_estado_bomba( " Escenario 5 con Alarma Media. Desvío de caudal mayor al 10 porciento durante más de 5 segundos.")
+     simular.contar_detenciones_preventivas()
 
 # Escenarip 5: Por momentos el caudal real es distinto al indicado, el controlador pasa a alarma media, y luego llega a alarma critica
 def escenario5_con_alarma_critica():
      simular = Simulacion("SimulacionBombaInfusion")
      simular.iniciar_simulacion(3600.0,None,None,funcion_con_error(12,120,300),None)
-     simular.graficar_timeline("Escenario Error Poco tiempo")
-     simular.graficar_caudal("Escenario Error Poco tiempo")
-     simular.graficar_estado_bomba("Escenario Error Poco tiempo")
+     simular.mostrar_metricas()  
+     simular.graficar_timeline( "Escenario 5 con Alarma Crítica. Desvío de caudal mayor al 10 porciento durante más de 5 segundos.")
+     simular.graficar_caudal( " Escenario 5 con Alarma Crítica.  Desvío de caudal mayor al 10 porciento durante más de 5 segundos.")
+     simular.graficar_estado_bomba( " Escenario 5 con Alarma Crítica. Desvío de caudal mayor al 10 porciento durante más de 5 segundos.")
+     simular.contar_detenciones_preventivas()
 
- 
+
+def escenario6(): 
+    
+     # Escenario 6: Fin de bolsa con confirmación del enfermero
+     # Se fija caudal alto para vaciar la bolsa en un tiempo corto de simulación.
+     # El enfermero confirma la alarma baja luego de 20s.
+     def funcion_caudal_max():
+          return 200.0
+
+     valores_emision = iter([1.0, 60000.0])
+     def funcion_emision_orden():
+          return next(valores_emision, 3000)
+
+
+     def t_confirmacion_enfermero():
+          return 25.0
+
+     simular = Simulacion("SimulacionBombaInfusion")
+     simular.iniciar_simulacion(2000.0, funcion_caudal_max, funcion_emision_orden , None, t_confirmacion_enfermero)
+     simular.mostrar_metricas()
+     simular.graficar_timeline("Escenario 6: Fin de bolsa con confirmación del enfermero.")
+     simular.graficar_caudal(" Escenario 6: Fin de bolsa con confirmación del enfermero.")
+     simular.graficar_estado_bomba("Bomba Escenario 6: Fin de bolsa con confirmación del enfermero.")
+
+
 
 # Escenario 7: Alarma crítica - sensor mide mal, enfermero confirma tarde
    
@@ -124,32 +161,9 @@ def escenario7():
                t_confirmacion_tarde
           )
      simular.mostrar_metricas()
-     simular.graficar_timeline("Escenario7_AlarmaCritica_ConfirmacionTarde")
-     simular.graficar_caudal("Escenario7_AlarmaCritica_ConfirmacionTarde")
-     simular.graficar_estado_bomba("Escenario7_AlarmaCritica_ConfirmacionTarde")
-
-def escenario6(): 
-    
-     # Escenario 6: Fin de bolsa con confirmación del enfermero
-     # Se fija caudal alto para vaciar la bolsa en un tiempo corto de simulación.
-     # El enfermero confirma la alarma baja luego de 20s.
-     def funcion_caudal_max():
-          return 200.0
-
-     valores_emision = iter([1.0, 60000.0])
-     def funcion_emision_orden():
-          return next(valores_emision, 3000)
-
-
-     def t_confirmacion_enfermero():
-          return 25.0
-
-     simular = Simulacion("SimulacionBombaInfusion")
-     simular.iniciar_simulacion(2000.0, funcion_caudal_max, funcion_emision_orden , None, t_confirmacion_enfermero)
-     simular.mostrar_metricas()
-     simular.graficar_timeline("Escenario6_FinBolsa_ConfirmacionEnfermero")
-     simular.graficar_caudal("Escenario6_FinBolsa_ConfirmacionEnfermero")
-     simular.graficar_estado_bomba("Escenario6_FinBolsa_ConfirmacionEnfermero")
+     simular.graficar_timeline("Escenario 7: Alarma crítica no confirmada durante 30 segundos.")
+     simular.graficar_caudal(" Escenario 7: Alarma crítica no confirmada durante 30 segundos.")
+     simular.graficar_estado_bomba("Bomba Escenario 7: Alarma crítica no confirmada durante 30 segundos.")
 
 
 # Escenario 8: Trato de generar ordenes mayor a caudal maximo (200)
@@ -163,31 +177,28 @@ def escenario8():
             funcion_emision_orden,
             None,None,None)
      simular.mostrar_metricas()
-     simular.graficar_timeline("Tratar de generar ordenes mayor a caudal maximo")
      simular.graficar_caudal("Tratar de generar ordenes mayor a caudal maximo")
-     simular.graficar_estado_bomba("Tratar de generar ordenes mayor a caudal maximo")
-    
     
 if __name__ == "__main__":
 
-     # # #Escenario 1: Funcionamiento normal sin fallas
-     # escenario1()
+     #Escenario 1: Funcionamiento normal sin fallas
+     escenario1()
 
-     # # #Escenario 2: Cambia orden medica durante la infusion
-     # # #el generador emite una orden de 50, y a los 2 segundo emite orden de 80... luego no deberia emitir nada por 10000 segundos
-     # escenario2()
+     #Escenario 2: Cambia orden medica durante la infusion
+     #el generador emite una orden de 50, y a los 2 segundo emite orden de 80... luego no deberia emitir nada por 10000 segundos
+     escenario2()
 
-     # # Escenario 3 se genera orden 0.0
-     # escenario3()
+     # Escenario 3 se genera orden 0.0
+     escenario3()
+     
+     # Escenario 4: Por momentos el caudal real es distinto al indicado, pero el controlador lo maneja y no salen alarmas
+     escenario4()
 
-     # # Escenario 4: Por momentos el caudal real es distinto al indicado, pero el controlador lo maneja y no salen alarmas
-     # escenario4()
+     # Escenario 5: Por momentos el caudal real es distinto al indicado, el controlador pasa a alarma media, pero no llega a alarma critica
+     escenario5_con_alarma_media()
 
-     # # Escenario 5: Por momentos el caudal real es distinto al indicado, el controlador pasa a alarma media, pero no llega a alarma critica
-     # escenario5_con_alarma_media()
-
-     # # Escenario 5: Por momentos el caudal real es distinto al indicado, el controlador pasa a alarma media, y luego llega a alarma critica
-     # escenario5_con_alarma_critica()
+     #  Escenario 5: Por momentos el caudal real es distinto al indicado, el controlador pasa a alarma media, y luego llega a alarma critica
+     escenario5_con_alarma_critica()
 
      # Escenario 6: Fin de bolsa con confirmación del enfermero
      escenario6() 
@@ -196,4 +207,4 @@ if __name__ == "__main__":
      escenario7()
 
      # Escenario 8: Trato de generar ordenes mayor a caudal maximo (200)
-     #escenario8()
+     escenario8()
