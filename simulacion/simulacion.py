@@ -8,7 +8,7 @@ from monitores.monitor_alarmas import MonitorAlarmas
 from monitores.monitor_actualizacion_caudal import MonitorRespuesta
 from monitores.monitor_controlador import MonitorControlador
 from monitores.monitor_bolsa import MonitorBolsa
-from lib import AccionBomba
+from lib import PERIODO_MUESTREO_SENSOR, AccionBomba
 
 
 
@@ -129,6 +129,7 @@ class Simulacion():
         print(descripcion_escenario)
         print("\n--- MÉTRICAS RECOLECTADAS ---")
         print(f"Duración total de la simulación: {self.tiempoSimulacion:.2f} segundos")
+        print("Periodo de muestreo del sensor: ", PERIODO_MUESTREO_SENSOR, " segundos")
         print("\n[ Monitor de Caudal ]")
         metricas_caudal = self.monitor_caudal.obtener_metricas()
         print(f"  Caudales indicados registrados: {len(metricas_caudal['caudal_indicado'])}")
