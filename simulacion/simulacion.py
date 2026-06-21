@@ -1,4 +1,5 @@
 from monitores.monitor_confirmacion import MonitorConfirmacion
+from monitores.monitor_detenciones import MonitorDetenciones
 from simulacion.visualizador import Visualizador
 from sistema import SistemaInfusionAcoplado
 from xdevs.sim import Coordinator
@@ -27,6 +28,7 @@ class Simulacion():
         self.tiempoSimulacion = 3600.0
         self.simulador = Coordinator(self.sistema)
         self.visualizador = None 
+        self.monitor_detenciones = MonitorDetenciones()
    
 
     def iniciar_simulacion(self, tiempoSimulacion=3600.0, funcionCaudal=None, funcionTiempo=None, funcionPrecisionCaudal=None, funcionTiempoConfirmacion=None):
@@ -71,6 +73,7 @@ class Simulacion():
             if not self.sistema.alarma.o_notificacion.empty():
                 v = self.sistema.alarma.o_notificacion.get()
                 self.monitor_alarmas.observar_alarma(t, v)
+                self.monitor_detenciones.observar_alarma(t, v)        
 
             # ── Monitor controlador ───────────────────────────────────
             if not self.sistema.controlador.o_mensaje_actuador.empty():
@@ -78,6 +81,7 @@ class Simulacion():
                 if(v==AccionBomba.DETENER_BOMBA):
                     self.monitor_controlador.observar_orden_apagar(t, 0.0)
                     self.monitor_bolsa.observar_accion_controlador(t, v)
+                    self.monitor_detenciones.observar_detencion(t)  
                 else:
                     self.monitor_controlador.observar_ajustar_caudal(t, v)
             
@@ -105,7 +109,8 @@ class Simulacion():
         print(" SIMULACIÓN FINALIZADA CON ÉXITO")
         print("=========================================")
         
-        
+        self.tiempoSimulacion= self.simulador.clock.time
+
         self.visualizador = Visualizador(
                         monitores={
                             'caudal':        self.monitor_caudal,
@@ -113,7 +118,7 @@ class Simulacion():
                             'controlador':   self.monitor_controlador,
                             'confirmacion':  self.monitor_confirmacion,
                         },
-                        tiempo_simulacion=self.tiempoSimulacion,
+                        tiempo_simulacion=self.tiempoSimulacion
                     )
         
     def graficar_timeline(self, titulo="Simulación"):
@@ -187,20 +192,27 @@ class Simulacion():
         print("-----------------------------\n")
 
     def contar_detenciones_preventivas(self):
-        metricas = self.monitor_controlador.obtener_metricas()
+        metricas = self.monitor_detenciones.obtener_metricas()
+        print(f"Total de detenciones preventivas: {metricas['preventivas']}")
+        print(f"Total de detenciones normales:     {metricas['normales']}")
+        return metricas['preventivas']
+
+
+    # def contar_detenciones_preventivas(self):
+    #     metricas = self.monitor_controlador.obtener_metricas()
         
-        # Tiempos en que hubo alarma (baja o crítica)
-        t_alarmas = {t for t, tipo in metricas['alarmas'] 
-                    #if tipo in {EstadoBomba.ALARMA_BAJA, EstadoBomba.ALARMA_CRITICA}}
-                    if tipo in {EstadoBomba.ALARMA_CRITICA}}
+    #     # Tiempos en que hubo alarma (baja o crítica)
+    #     t_alarmas = {t for t, tipo in metricas['alarmas'] 
+    #                 #if tipo in {EstadoBomba.ALARMA_BAJA, EstadoBomba.ALARMA_CRITICA}}
+    #                 if tipo in {EstadoBomba.ALARMA_CRITICA}}
         
-        count = 0
-        for t_apagado, _ in metricas['ordenApagar']:
-            # Si se agrega lo de alarmaBaja, deberia comprobar si 65 segundos anteriores hubo una alarma, es preventiva
-            if any(t_apagado - 10 <= t_a <= t_apagado for t_a in t_alarmas):
-                count += 1
-        print(f"Total de detenciones preventivas detectadas: {count}")
-        return count
+    #     count = 0
+    #     for t_apagado, _ in metricas['ordenApagar']:
+    #         # Si se agrega lo de alarmaBaja, deberia comprobar si 65 segundos anteriores hubo una alarma, es preventiva
+    #         if any(t_apagado - 10 <= t_a <= t_apagado for t_a in t_alarmas):
+    #             count += 1
+    #     print(f"Total de detenciones preventivas detectadas: {count}")
+    #     return count
 
 
   
