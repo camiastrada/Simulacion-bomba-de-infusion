@@ -5,7 +5,7 @@ from monitores.monitor_alarmas import MonitorAlarmas
 from monitores.monitor_actualizacion_caudal import MonitorRespuesta
 from monitores.monitor_controlador import MonitorControlador
 from lib import AccionBomba
-from simulacion import Simulacion
+from simulacion.simulacion import Simulacion
 import random
 
 
