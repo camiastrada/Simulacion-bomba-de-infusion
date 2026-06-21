@@ -1,6 +1,6 @@
 from monitores.monitor_confirmacion import MonitorConfirmacion
 from monitores.monitor_detenciones import MonitorDetenciones
-from simulacion.visualizador import Visualizador
+from simulacion.visualizacion import Visualizacion
 from sistema import SistemaInfusionAcoplado
 from xdevs.sim import Coordinator
 from monitores.monitor_caudal import MonitorCaudal
@@ -8,10 +8,8 @@ from monitores.monitor_alarmas import MonitorAlarmas
 from monitores.monitor_actualizacion_caudal import MonitorRespuesta
 from monitores.monitor_controlador import MonitorControlador
 from monitores.monitor_bolsa import MonitorBolsa
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 from lib import AccionBomba
-from lib import EstadoBomba
+
 
 
 
@@ -27,7 +25,7 @@ class Simulacion():
         self.monitor_confirmacion = MonitorConfirmacion()
         self.tiempoSimulacion = 3600.0
         self.simulador = Coordinator(self.sistema)
-        self.visualizador = None 
+        self.visualizacion = None 
         self.monitor_detenciones = MonitorDetenciones()
    
 
@@ -111,7 +109,7 @@ class Simulacion():
         
         self.tiempoSimulacion= self.simulador.clock.time
 
-        self.visualizador = Visualizador(
+        self.visualizacion = Visualizacion(
                         monitores={
                             'caudal':        self.monitor_caudal,
                             'alarmas':       self.monitor_alarmas,
@@ -121,17 +119,10 @@ class Simulacion():
                         tiempo_simulacion=self.tiempoSimulacion
                     )
         
-    def graficar_timeline(self, titulo="Simulación"):
-        if self.visualizador is not None:
-            self.visualizador.graficar_timeline(titulo)
-
-    def graficar_caudal(self, titulo="Simulación"):
-        if self.visualizador is not None:
-            self.visualizador.graficar_caudal(titulo)
-
-    def graficar_estado_bomba(self, titulo="Simulación"):
-        if self.visualizador is not None:
-            self.visualizador.graficar_estado_bomba(titulo)
+    def graficar_metricas(self, titulo="Simulación"):
+        if self.visualizacion is not None:
+            self.visualizacion.graficar(titulo)
+            
            
 
     def mostrar_metricas(self):

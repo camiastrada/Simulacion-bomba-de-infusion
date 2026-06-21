@@ -44,7 +44,7 @@ ESTADOS_BOMBA = {
 }
 
 
-class Visualizador:
+class Visualizacion:
 
     def __init__(self, monitores: dict, tiempo_simulacion: float):
         """
@@ -56,6 +56,13 @@ class Visualizador:
         self.monitores = monitores
         self.tiempo_simulacion = tiempo_simulacion
 
+    # Gráfica general con todas las métricas
+    def graficar(self, titulo: str = "Simulación") -> None:
+        self.graficar_timeline(titulo)
+        self.graficar_caudal(titulo)
+        self.graficar_estado_bomba(titulo)
+        plt.show()
+        
     # ── Timeline ──────────────────────────────────────────────────────────────
 
     def graficar_timeline(self, titulo: str = "Simulación") -> None:
@@ -104,7 +111,7 @@ class Visualizador:
         ax1.legend(handles, labels, loc='upper right', fontsize=8, ncol=2, framealpha=0.7)
 
         plt.tight_layout()
-        plt.show()
+
 
     def _construir_eventos_timeline(self, metricas_c, metricas_a, metricas_ct, metricas_cf) -> dict:
         eventos = {k: [] for k in FILAS_TIMELINE}
@@ -177,11 +184,11 @@ class Visualizador:
         ax.set_ylim(bottom=0)
 
         plt.tight_layout()
-        plt.show()
 
     # ── Estado de la bomba ────────────────────────────────────────────────────
 
     def graficar_estado_bomba(self, titulo: str = "Simulación") -> None:
+        
         metricas = self.monitores['controlador'].obtener_metricas()
         eventos  = self._construir_eventos_bomba(metricas)
 
@@ -215,11 +222,10 @@ class Visualizador:
         ax.set_xlim(0, self.tiempo_simulacion)
         ax.set_ylim(0.4, 5.6)
         ax.grid(axis='x', alpha=0.3)
-
         plt.tight_layout()
-        plt.show()
 
     def _construir_eventos_bomba(self, metricas: dict) -> list:
+        
         eventos = []
 
         for t, _ in metricas['ajustarCaudal']:
