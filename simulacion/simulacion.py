@@ -128,11 +128,14 @@ class Simulacion():
         # Obtener y mostrar las métricas de los monitores
         print(descripcion_escenario)
         print("\n--- MÉTRICAS RECOLECTADAS ---")
-       
+        print(f"Duración total de la simulación: {self.tiempoSimulacion:.2f} segundos")
         print("\n[ Monitor de Caudal ]")
         metricas_caudal = self.monitor_caudal.obtener_metricas()
         print(f"  Caudales indicados registrados: {len(metricas_caudal['caudal_indicado'])}")
         print(f"  Caudales reales registrados: {len(metricas_caudal['caudal_real'])}")
+        pct = self.monitor_caudal.calcular_tiempo_infusion_correcta(self.tiempoSimulacion)
+        print(f"  Infusión correcta con tolerancia de 10% error: {pct:.1f}%")
+        
 
         print("\n[ Monitor de Alarmas ]")
         metricas_alarmas = self.monitor_alarmas.obtener_metricas()
