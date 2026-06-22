@@ -188,3 +188,45 @@ class Simulacion():
         
         print("-----------------------------\n")
 
+
+
+    def critica_y_respuesta(self):
+        LATENCIA = 0.5
+        metricas_alarmas = self.monitor_alarmas.obtener_metricas()
+        metricas_confirmacion = self.monitor_confirmacion.obtener_metricas()
+        metricas_caudal_indicado = self.monitor_caudal.obtener_metricas().get('caudal_indicado')
+        metricas_caudal_real = self.monitor_caudal.obtener_metricas().get('caudal_real')
+
+        tiempos_critica = [t for t, tipo in metricas_alarmas.get('alarmas', []) if tipo == 'alarmaCritica']
+        tiempos_confirmacion = [t for t, _ in metricas_confirmacion.get('confirmaciones', [])]
+        tiempos_orden = [t for t, _ in metricas_caudal_indicado]
+
+        print("\n[ Verificación: caudal cero tras alarma crítica ]")
+        errores = []
+        for t_critica in tiempos_critica:
+            proximas_confirmaciones = [t for t in tiempos_confirmacion if t > t_critica]
+            proximas_ordenes = [t for t in tiempos_orden if t > t_critica]
+            
+            t_confirmacion = min(proximas_confirmaciones) if proximas_confirmaciones else float('inf')
+            t_orden = min(proximas_ordenes) if proximas_ordenes else float('inf')
+            t_fin = min(t_confirmacion, t_orden)
+            
+            # Ignorar los primeros LATENCIA segundos tras la alarma
+            caudales_positivos = [(t, v) for t, v in metricas_caudal_real 
+                                if t_critica + LATENCIA < t < t_fin and v > 0]
+            
+            if caudales_positivos:
+                errores.append((t_critica, t_fin, caudales_positivos))
+                print(f" Alarma crítica en t={t_critica:.2f} → caudal positivo antes de liberación (t_fin={t_fin:.2f})")
+                for t, v in caudales_positivos[:3]:
+                    print(f"      t={t:.2f}s → caudal={v:.4f}")
+            else:
+                print(f" Alarma crítica en t={t_critica:.2f} → caudal cero hasta t={t_fin:.2f}")
+
+        print(f"\nResumen: {len(tiempos_critica) - len(errores)} correctos, {len(errores)} errores")
+        if not errores:
+            print("PROPIEDAD CUMPLIDA: caudal cero tras toda alarma crítica hasta confirmación u orden.")
+        else:
+            print(f"PROPIEDAD VIOLADA: {len(errores)} alarma(s) crítica(s) con caudal positivo.")
+        return errores
+
