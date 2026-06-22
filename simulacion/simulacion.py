@@ -80,6 +80,7 @@ class Simulacion():
                     self.monitor_controlador.observar_orden_apagar(t, 0.0)
                     self.monitor_bolsa.observar_accion_controlador(t, v)
                     self.monitor_detenciones.observar_detencion(t)  
+                    self.monitor_respuesta.observar_actuador(t, v)
                 else:
                     self.monitor_controlador.observar_ajustar_caudal(t, v)
             
@@ -154,7 +155,7 @@ class Simulacion():
         else:
             print(f"  Ajustes de caudal medidos: {len(metricas_respuesta['tiempos_respuesta'])}")
             print(f"  Tiempo de respuesta promedio: {metricas_respuesta['promedio_respuesta']}s")
-        
+            print(f"  Órdenes interrumpidas por detención de bomba: {metricas_respuesta['ordenes_interrumpidas']}")
         print("\n[ Monitor del controlador ]")
         metricas_controlador = self.monitor_controlador.obtener_metricas()
         if not metricas_controlador['alarmas']:
