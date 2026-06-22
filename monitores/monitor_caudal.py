@@ -25,9 +25,9 @@ class MonitorCaudal:
         def valor_en(serie, t):
             """Último valor de la serie escalonada antes o en t"""
             v = None
-            for ts, vs in serie:
-                if ts <= t:
-                    v = vs
+            for tiempo_registro, valor_registro in serie:
+                if tiempo_registro <= t:
+                    v = valor_registro
                 else:
                     break
             return v
@@ -39,15 +39,23 @@ class MonitorCaudal:
             t_fin = tiempos[i + 1]
             dt = t_fin - t_ini
 
-            v_ind = valor_en(indicado, t_ini)
-            v_real = valor_en(real, t_ini)
+            valor_caudal_indicado = valor_en(indicado, t_ini)
+            valor_caudal_real = valor_en(real, t_ini)
 
-            if v_ind is None or v_real is None or v_ind == 0:
+            if valor_caudal_indicado is None or valor_caudal_real is None:
                 continue
 
-            error = abs(v_real - v_ind) / v_ind
-            if error <= tolerancia:
-                tiempo_correcto += dt
+            # CASO 1: Bomba detenida correctamente
+            if valor_caudal_indicado == 0:
+                if valor_caudal_real < 0.1: # Tolerancia para considerar "cero" real
+                    tiempo_correcto += dt # Está bien, está en reposo
+                # Si valor_caudal_real > 0.1, hay un error (infusión no deseada)
+            
+            # CASO 2: Infusión activa
+            else:
+                error = abs(valor_caudal_real - valor_caudal_indicado) / valor_caudal_indicado
+                if error <= tolerancia:
+                    tiempo_correcto += dt
 
         return (tiempo_correcto / tiempo_total) * 100.0
     def obtener_metricas(self):

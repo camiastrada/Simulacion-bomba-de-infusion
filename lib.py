@@ -8,6 +8,7 @@ CAUDAL_MAX = 200.0  # ml/h
 CAUDAL_MIN = 0.0    # ml/h
 DELAY_ACTUADOR = 0.5  # segundos
 CAPACIDAD_BOMBA = 80.0  # ml
+PERIODO_MUESTREO_SENSOR = 1.0  # segundos
 
 
 # ─────────────────────────────────────────────────────────────
