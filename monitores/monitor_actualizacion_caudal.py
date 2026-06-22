@@ -1,7 +1,7 @@
 #Monitor para medir el tiempo de respuesta del sistema desde que llega una orden al controlador 
 # hasta que el sensor refleja el cambio en el caudal
 class MonitorRespuesta:
-    def __init__(self, precision=0.01):
+    def __init__(self, precision=0.03):
         self.tiempos_respuesta = []
         self.ultima_orden = None
         self.tiempo_ultima_orden = None

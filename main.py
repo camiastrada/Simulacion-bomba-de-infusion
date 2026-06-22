@@ -96,6 +96,7 @@ def escenario5_con_alarma_critica():
      simular.iniciar_simulacion(3600.0,None,None,funcion_con_error(12,120,300),None)
      simular.mostrar_metricas(escenario5)  
      simular.graficar_metricas("Escenario 5 con Alarma Crítica. Desvío de caudal mayor al 10 porciento durante más de 5 segundos.")
+     simular.critica_y_respuesta()
      
 
 
@@ -163,7 +164,7 @@ def escenario8():
                return next(valores_c_emision, 300.0)
 
      simular = Simulacion("SimulacionBombaInfusion")
-     simular.iniciar_simulacion(36000.0,
+     simular.iniciar_simulacion(3600.0,
             funcion_emision_orden,
             None,None,None)
      simular.mostrar_metricas()

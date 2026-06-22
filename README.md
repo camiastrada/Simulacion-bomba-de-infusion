@@ -17,9 +17,9 @@ Al simular un caso se registran datos de la simulación, se generan gráficos y 
 
 
 ## Requisitos 
-- Python 3.8 o superior.
-
-- Git instalado.
+- Python 3.10+
+- xdevs
+- matplotlib
 
 ## Guía de Instalación
 1. Clonar el repositorio del proyecto:
