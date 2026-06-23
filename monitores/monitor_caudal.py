@@ -1,3 +1,6 @@
+from lib import AccionBomba
+
+
 class MonitorCaudal:
     def __init__(self):
         self.caudal_indicado = []
@@ -8,6 +11,13 @@ class MonitorCaudal:
 
     def observar_flujo(self, t, valor):
         self.caudal_real.append((t, valor))
+    
+    def observar_actuador(self, t, mensaje):
+         if mensaje == AccionBomba.DETENER_BOMBA:
+            # El controlador apagó la bomba por alarma, no por orden médica
+            # Registrar caudal indicado = 0 (funcionamiento correcto es caudal real = 0)
+            self.caudal_indicado.append((t, 0.0))
+
 
     def calcular_tiempo_infusion_correcta(self, tiempo_total: float, tolerancia: float = 0.1) -> float:
         

@@ -81,6 +81,7 @@ class Simulacion():
                     self.monitor_bolsa.observar_accion_controlador(t, v)
                     self.monitor_detenciones.observar_detencion(t)  
                     self.monitor_respuesta.observar_actuador(t, v)
+                    self.monitor_caudal.observar_actuador(t, v)
                 else:
                     self.monitor_controlador.observar_ajustar_caudal(t, v)
             

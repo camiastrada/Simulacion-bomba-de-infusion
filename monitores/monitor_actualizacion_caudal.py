@@ -42,7 +42,8 @@ class MonitorRespuesta:
             
     def observar_actuador(self, t, mensaje): #logica para descartar ordenes interrumpidas por detencion de bomba
         if mensaje == AccionBomba.DETENER_BOMBA:
-            if self.esperando_confirmacion:
+            
+            if self.esperando_confirmacion and self.ultima_orden == 0.0:
                 self.ordenes_interrumpidas += 1  # métrica separada
             self.esperando_confirmacion = False
             self.ultima_orden = None
