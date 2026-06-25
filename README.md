@@ -1,5 +1,5 @@
 # Sistema de Simulación DEVS - Bomba de Infusión Médica
-# Este proyecto implementa un entorno de simulación de eventos discretos basado en la metodología formal DEVS utilizando el motor xDEVS. El sistema modela el comportamiento lógico de una bomba de infusión médica, interactuando con su entorno físico (sensores de caudal) y el factor humano (operador/enfermero).
+Este proyecto implementa un entorno de simulación de eventos discretos basado en la metodología formal DEVS utilizando el motor xDEVS. El sistema modela el comportamiento lógico de una bomba de infusión médica, interactuando con su entorno físico (sensores de caudal) y el factor humano (operador/enfermero).
 
 ## Visualización de Resultados
 El sístema  simula 7 casos del sístema detallados en el informe uno a uno.
